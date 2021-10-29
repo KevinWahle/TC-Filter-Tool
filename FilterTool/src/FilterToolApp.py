@@ -1,6 +1,8 @@
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QListWidgetItem, QMainWindow
 
+from FilterTool.src.ui.widgets.Main_Window import FilterTool_MainWindow
+
 
 class FilterToolApp(QMainWindow, FilterTool_MainWindow):
     def __init__(self, *args, **kwargs):
