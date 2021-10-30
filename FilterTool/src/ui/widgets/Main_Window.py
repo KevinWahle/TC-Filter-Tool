@@ -9,9 +9,10 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from src.ui.widgets.PlotWidget import PlotWidget
+# from PlotWidget import PlotWidget
 
-
-class Ui_MainWindow(object):
+class FilterTool_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1134, 1160)
@@ -76,7 +77,7 @@ class Ui_MainWindow(object):
         self.Filter_Img.setMinimumSize(QtCore.QSize(0, 130))
         self.Filter_Img.setMaximumSize(QtCore.QSize(16777215, 130))
         self.Filter_Img.setText("")
-        self.Filter_Img.setPixmap(QtGui.QPixmap("Imagenes/lowpasstemplate.png"))
+        self.Filter_Img.setPixmap(QtGui.QPixmap("res/lowpasstemplate.png"))
         self.Filter_Img.setObjectName("Filter_Img")
         self.verticalLayout_3.addWidget(self.Filter_Img)
         self.label_2 = QtWidgets.QLabel(self.tab)
@@ -581,7 +582,7 @@ class Ui_MainWindow(object):
         self.Minus_Btn.setMaximumSize(QtCore.QSize(30, 26))
         self.Minus_Btn.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("Imagenes/-.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("res/-.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.Minus_Btn.setIcon(icon)
         self.Minus_Btn.setIconSize(QtCore.QSize(30, 30))
         self.Minus_Btn.setObjectName("Minus_Btn")
@@ -597,7 +598,7 @@ class Ui_MainWindow(object):
         self.Edit_Btn.setStyleSheet("")
         self.Edit_Btn.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("Imagenes/Edit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("res/Edit.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.Edit_Btn.setIcon(icon1)
         self.Edit_Btn.setIconSize(QtCore.QSize(25, 25))
         self.Edit_Btn.setAutoDefault(False)
@@ -616,7 +617,7 @@ class Ui_MainWindow(object):
         self.Plus_Btn.setStyleSheet("")
         self.Plus_Btn.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("Imagenes/+.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap("res/+.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.Plus_Btn.setIcon(icon2)
         self.Plus_Btn.setIconSize(QtCore.QSize(30, 30))
         self.Plus_Btn.setAutoDefault(False)
@@ -642,7 +643,7 @@ class Ui_MainWindow(object):
         self.Atenuacion_Plot = PlotWidget(self.tab_5)
         self.Atenuacion_Plot.setObjectName("Atenuacion_Plot")
         self.verticalLayout_4.addWidget(self.Atenuacion_Plot)
-        self.Fase_Plot = QtWidgets.QWidget(self.tab_5)
+        self.Fase_Plot = PlotWidget(self.tab_5)
         self.Fase_Plot.setObjectName("Fase_Plot")
         self.verticalLayout_4.addWidget(self.Fase_Plot)
         self.horizontalWidget1 = QtWidgets.QWidget(self.tab_5)
@@ -1001,7 +1002,7 @@ class Ui_MainWindow(object):
         self.TF_Modulo = PlotWidget(self.tab_2)
         self.TF_Modulo.setObjectName("TF_Modulo")
         self.verticalLayout_8.addWidget(self.TF_Modulo)
-        self.TF_FASE = QtWidgets.QWidget(self.tab_2)
+        self.TF_FASE = PlotWidget(self.tab_2)
         self.TF_FASE.setObjectName("TF_FASE")
         self.verticalLayout_8.addWidget(self.TF_FASE)
         self.horizontalLayout_3.addLayout(self.verticalLayout_8)
@@ -1018,17 +1019,17 @@ class Ui_MainWindow(object):
         MainWindow.setMenuBar(self.menubar)
         self.actionGuardar = QtWidgets.QAction(MainWindow)
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("Imagenes/Save.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap("res/Save.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionGuardar.setIcon(icon3)
         self.actionGuardar.setObjectName("actionGuardar")
         self.actionGuardar_como = QtWidgets.QAction(MainWindow)
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("Imagenes/Save_As.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon4.addPixmap(QtGui.QPixmap("res/Save_As.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionGuardar_como.setIcon(icon4)
         self.actionGuardar_como.setObjectName("actionGuardar_como")
         self.actionAbrir = QtWidgets.QAction(MainWindow)
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("Imagenes/Open.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap("res/Open.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionAbrir.setIcon(icon5)
         self.actionAbrir.setObjectName("actionAbrir")
         self.actionGuardar_todos_los_Gr_ficos = QtWidgets.QAction(MainWindow)
@@ -1124,14 +1125,13 @@ class Ui_MainWindow(object):
         self.actionGuardar_como.setText(_translate("MainWindow", "Guardar como"))
         self.actionAbrir.setText(_translate("MainWindow", "Abrir"))
         self.actionGuardar_todos_los_Gr_ficos.setText(_translate("MainWindow", "Guardar todos los Gráficos"))
-from src.ui.widgets.PlotWidget.py import PlotWidget
 
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
+    ui = FilterTool_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
