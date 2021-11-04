@@ -68,29 +68,6 @@ class PlotWidget(QWidget):
         self.canvas.draw()
         self.canvas.figure.tight_layout()
 
-    # def drawModule(self, H, *args, freq='rad', **kargs):
-    #     try:
-
-    #         eje, modulo, fase = ss.bode(H)      # Calculo del Bode (La fase no se usa)
-
-    #         # Frecuencia en Hertz
-    #         if freq.lower() == 'hertz' or freq.lower() == 'h':
-    #             eje = eje / (2*np.pi)
-
-    #         # Pasamos a escala logaritmica 
-    #         self.axes.set_xscale('log')
-            
-    #         # Agregamos la cuadricula
-    #         self.axes.grid(True)
-
-    #         # Graficamos
-    #         self.axes.plot(eje, modulo, *args, **kargs)
-    
-    #         self.canvas.figure.tight_layout()
-    #         self.canvas.draw()
-
-    #     except:
-    #         print('Error al graficar')
 
     # Actualiza los valores de los ejes
     def _update_label(self):
@@ -137,6 +114,28 @@ class PlotWidget(QWidget):
             self.axes.plot(event.xdata, event.ydata, '.', markersize=15, zorder=3)
             self.canvas.draw()
 
+    # def drawModule(self, H, *args, freq='rad', **kargs):
+    #     try:
+    #         eje, modulo, fase = ss.bode(H)      # Calculo del Bode (La fase no se usa)
+
+    #         # Frecuencia en Hertz
+    #         if freq.lower() == 'hertz' or freq.lower() == 'h':
+    #             eje = eje / (2*np.pi)
+
+    #         # Pasamos a escala logaritmica 
+    #         self.axes.set_xscale('log')
+            
+    #         # Agregamos la cuadricula
+    #         self.axes.grid(True)
+
+    #         # Graficamos
+    #         self.axes.plot(eje, modulo, *args, **kargs)
+    
+    #         self.canvas.figure.tight_layout()
+    #         self.canvas.draw()
+
+    #     except:
+    #         print('Error al graficar')
 
 if __name__ == "__main__":
 

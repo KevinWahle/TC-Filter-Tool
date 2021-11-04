@@ -1,5 +1,7 @@
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMainWindow
+from src.Drawings import drawTemplate
 from src.classes.Filter import Filter
 
 from src.ui.widgets.Main_Window import FilterTool_MainWindow
@@ -22,11 +24,13 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         self.Minus_Btn.clicked.connect(self.removeFilter)
         self.Edit_Btn.clicked.connect(self.editFilter)
         self.Filtro_B.currentIndexChanged.connect(self.onFilterChanged)
+        self.Plantilla_Box.stateChanged.connect(self.onTemplateBtnClick)
 
 
         # variables y arreglos
 
         self.filter = []
+        self.template = []
 
 
     def onFilterChanged(self, index):
@@ -68,10 +72,6 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         qmax = self.Qmax_T.value()
         deonrm = self.Slider.value()
 
-
-
-        # TODO: LLamar a función que cree el filtro
-
         # DEBUG
         print("Nombre: " + name)
         print("Tipo: " + str(filterType))
@@ -91,7 +91,8 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         print("Deonrm: " + str(deonrm))
 
         # Agregar filtro a la lista
-        self.filter.append(Filter(name, filterType, approx, gain, aten, freqs, n, qmax, deonrm/100))
+        self.filter.append(Filter(name=name, filter_type=filterType, approx=approx, gain=gain, aten=aten,
+                                    freqs=freqs, N=n, qmax=qmax, desnorm=deonrm/100))
         self.updateFilterList()
 
     def updateFilterList(self):
@@ -101,6 +102,16 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
     def removeFilter(self):
         self.filter.pop(self.Filter_List.currentRow())
+        self.updateFilterList()
 
     def editFilter(self):
         pass
+
+    def onTemplateBtnClick(self, state):
+        index = self.Filter_List.currentRow()
+        if (state == Qt.Checked and len(self.filter) > 0 and index >= 0):
+            self.template = drawTemplate(self.Atenuacion_Plot.axes, self.filter[index], index=index)
+            self.Atenuacion_Plot.draw()
+        elif len(self.template) > 0:
+            [ tmp.remove() for tmp in self.template ]
+            self.template = []

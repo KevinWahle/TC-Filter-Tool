@@ -1,5 +1,5 @@
 
-from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QLineEdit, QWidget
+from PyQt5.QtWidgets import QApplication, QHBoxLayout, QWidget
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 
@@ -45,7 +45,6 @@ class TeXLabel(QWidget):
                 horizontalalignment='center',
                 verticalalignment='center', size=size)
         self.canvas.draw()
-
 
 
 
