@@ -18,14 +18,14 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
         # Seteo de visivilidad de widgets
 
-        self.onFilterChanged(self.Filtro_B.currentIndex())
+        self.onFilterTypeChanged(self.Filtro_B.currentIndex())
 
         # Conexiones
 
         self.Plus_Btn.clicked.connect(self.addFilter)
         self.Minus_Btn.clicked.connect(self.removeFilter)
         self.Edit_Btn.clicked.connect(self.editFilter)
-        self.Filtro_B.currentIndexChanged.connect(self.onFilterChanged)
+        self.Filtro_B.currentIndexChanged.connect(self.onFilterTypeChanged)
         self.Plantilla_Box.stateChanged.connect(self.onTemplateBtnClick)
 
 
@@ -35,7 +35,7 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         self.template = []
 
 
-    def onFilterChanged(self, index):
+    def onFilterTypeChanged(self, index):
 
         # Visibilidad de textboxes
         
@@ -53,6 +53,10 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
         name = self.Nombre_T.text()
 
+        if not name:
+            print("Invalid name")
+            return
+        
         filterName = [ "lowpass", "highpass", "bandpass", "bandstop", "groupdelay" ]
         filterIndex = self.Filtro_B.currentIndex()    # Se maneja por indice
         filterType = filterName[filterIndex]
@@ -79,8 +83,8 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         print("Tipo: " + str(filterType))
         print("Aproximación: " + str(approx))
         print("Ganancia: " + str(gain))
-        print("Atenuación P: " + str(aten[1]))
-        print("Atenuación A: " + str(aten[0]))
+        print("Atenuación P: " + str(aten[0]))
+        print("Atenuación A: " + str(aten[1]))
         # print("Fpm: " + str(freqs[0][0]))
         # print("Fpp: " + str(freqs[0][1]))
         # print("Fam: " + str(freqs[1][0]))
@@ -96,6 +100,9 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         self.filter.append(Filter(name=name, filter_type=filterType, approx=approx, gain=gain, aten=aten,
                                     freqs=freqs, N=n, qmax=qmax, desnorm=deonrm/100))
         self.updateFilterList()
+
+        self.drawFilters()
+
 
     def updateFilterList(self):
         self.Filter_List.clear()
@@ -121,6 +128,11 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             filter = self.filter[i]
             drawingFilter(filter=filter, axes=axes, index=i)
 
+        self.Atenuacion_Plot.draw()
+        self.Fase_Plot.draw()
+        self.Retardo_Plot.draw()
+        self.Q_Plot.draw()
+
     def onFilterItemChanged(self, index):
         pass
 
@@ -133,8 +145,4 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             [ tmp.remove() for tmp in self.template ]
             self.template = []
             
-        # Pasamos a escala logaritmica 
-        self.Atenuacion_Plot.axes.set_xscale('log')
-        
-        # Agregamos la cuadricula
-        self.Atenuacion_Plot.axes.grid(True, which='both')
+        self.drawFilters()

@@ -21,7 +21,7 @@ class Filter:
         self.p = []
         self.k = 0
 
-        self.CalcFilt()
+        # self.CalcFilt()
 
         ord = None
         wn = None
@@ -77,7 +77,9 @@ class Filter:
 
     def getTF(self):
         try:
-            return ss.TransferFunction(zpk2tf(self.z, self.p, self.k))
+            a, b = zpk2tf(self.z, self.p, self.k)
+            return ss.TransferFunction(a, b)
         except Exception as e:
-            print(e)
+            print("Error getting TF: ", e)
             return None
+        
