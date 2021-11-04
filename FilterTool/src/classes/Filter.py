@@ -3,19 +3,21 @@ import numpy as np
 import Filteraux
 
 class Filter:
-    def __init__(self, name, filter_type, approx, gain, aten, freqs, N=None, qmax=None, desnorm=0.5, tol = 10):
+    def __init__(self, name, filter_type, approx, gain, freqs, aten=[0,0], N=None, qmax=None, 
+                retardo=0, desnorm=0.5, tol = 0.1):
         self.name = name
         self.filter_type = filter_type # ‘lowpass’, ‘highpass’, ‘bandpass’, ‘bandstop’
         self.approx = approx        # "butter", "bessel", "cheby1", "cheby2", "ellip", "legendre", "gauss"
-        self.gain = gain
+        self.gain = gain    # NO se usa
         self.A = aten       # [Ap , Aa]
         self.freqs = freqs  # [[fp-, fp+], [fa-, fa+] ] o [fp, fa]
         self.N = N          # [Nmin, Nmax]
         self.qmax = qmax
+        self.ret = retardo  # Se carga en us 
         self.desnorm = desnorm
         self.tol= tol       # Para Bessel
-        self.num = []
-        self.den = []
+        self.num = []       #no se usa
+        self.den = []       #no se usa
         self.z = []
         self.p = []
         self.k = 0
@@ -49,7 +51,7 @@ class Filter:
                 pass
 
         elif (approx == 'ellip'):
-            ord, wn = ss.ellipord(2*np.pi*self.freqs[1], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
+            ord, wn = ss.ellipord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
             
             if ord in range(self.N[0], self.N[1]):
                 self.z, self.p, self.k = ss.ellip(ord, self.A[0], self.A[1], wn, btype=self.filter_type, analog=True, output='zpk')
@@ -57,17 +59,12 @@ class Filter:
                 pass
 
         elif (approx == 'bessel'):
-            ord, wn = ss.besselord(2*np.pi*self.freqs[0], btype=self.filter_type, tol= self.tol)
-
-            if ord in range(self.N[0], self.N[1]):
-                self.z, self.p, self.k = ss.bessel(ord, wn, btype=self.filter_type, analog=True, output='sos', output='zpk')            
-                
-            else:
-                pass
+            self.z, self.p, self.k = bessel_(self.freqs, self.filter_type, self.ret, self.tol, self.N[1])
             
         elif (approx == 'legendre'):
-            n=legenord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], epsilon, self.A[1], self.filter_type)
+            n=legenord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[1], self.filter_type)
             a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*ss.legendre(n))
+            # Aplicar transformación
 
         elif (approx == 'gauss'):
             pass
@@ -79,51 +76,35 @@ class Filter:
         print(self.sos)
         print(a,b)
 
-def legenord(wa, wp, epsilon, aten, filter_type, Nmax=25):
+def legendre_(w, aten, desnorm, filter_type, Nmax=25):
+    Ax = aten[0]+(aten[1]-aten[0])*desnorm  # Calculamos al atenuación en la frecuencia deseada
+    wx = 10**(w[0]+desnorm*(w[1]-w[0]))     # Calculamos la frecuencia deseada
+    epsilon= np.sqrt(10**(Ax/10)-1)         # Calculamos el epsilon para la frec deseada
+    ord=0
     for n in range(Nmax):
-        L= np.polyval(ss.legendre(n), Wnorm(wa, wp, filter_type)**2)
-        if L>= np.log10((10**(aten/10)-1)/epsilon**2):
+        Lp= np.polyval(ss.legendre(n), w[0]**2) # Pol de Legendre en wp
+        La= np.polyval(ss.legendre(n), w[1]**2) # Pol de Legendre en wa
+        if Lp <= np.log10((10**(aten[0]/10)-1)/epsilon**2) and La >= np.log10((10**(aten[1]/10)-1)/epsilon**2):
             ord=n
-            wn=?
-    return ord, wn
-
-            
-
-def Wnorm(wa,wp,tipo):
-    normalizaciones={
-        "lowpass": wa/wp,
-        "highpass": wp/wa,
-        "bandpass": (wa[1]-wa[0])/(wp[1]-wp[0]),
-        "bandstop": (wp[1]-wp[0])/(wa[1]-wa[0]),
-    }
-    return normalizaciones[tipo]
-
-
-
-
-
-
-
-
-
-
-
-def nearIndex(w, woNorm):       
-    # Averiguo cual es el índice de la frecuencia dentro de w  
-    # más cercano a la normalizada
-    diff = []
-    for frec in w:
-        diff.append(abs(w-woNorm))
-    return diff.index(min(frec)) 
-
-def besselord(wo, btype, retGroup, tol=0.1,Nmax=25):
-    #retGroup viene en us
-    woNorm = wo*retGroup*1e-6   # TODO: revisar en que viene el retardo
-    for n in range(0,Nmax):
-        bn,an = ss.bessel(n, 1, btype=btype, analog=True, output='ba', norm='delay')
-        w,h = ss.freqs(bn,an,worN=np.logspace(-1, np.log10(woNorm)+1, num=20*np.log10(woNorm)))
-        #retGroup_f = -np.diff(np.unwrap(np.angle(h)))/np.diff(w)   #el retardo de grupo es la derivada de la fase respecto de w
-        retGroupN = ss.group_delay((bn,an), w=w) 
-        if retGroupN[nearIndex(w, woNorm)] >= (1-tol):
             break
-    return n, 1/(retGroup*1e-6)
+
+    if ord != 0:
+        a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*ss.legendre(n))
+        z,p,k=ss.tf2zpk(a,b)
+        p=p[p.imag<=0]  # Elimina polos del semiplano derecho 
+        return transform(z,p,k,filter_type)
+    else:
+        return 0
+
+
+
+def transform(z, p, k, wx, filter_type):
+    if filter_type == 'lowpass':
+        z,p,k=ss.lp2lp_zpk(z,p,k,wx)
+    elif filter_type == 'highpass':
+        z,p,k=ss.lp2hp_zpk(z,p,k,wx)
+    elif filter_type == 'bandpass':
+        z,p,k=ss.lp2bp_zpk(z,p,k,wx)    # TODO: Ancho de banda?
+    elif filter_type == 'bandstop': 
+        z,p,k=ss.lp2bs_zpk(z,p,k,wx)    # TODO: Ancho de banda?
+    return z,p,k
