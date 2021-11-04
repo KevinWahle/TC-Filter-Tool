@@ -1,7 +1,9 @@
+from PyQt5 import QtWidgets
+from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMainWindow
-from src.Drawings import drawTemplate
+from src.Drawings import drawTemplate, drawingFilter
 from src.classes.Filter import Filter
 
 from src.ui.widgets.Main_Window import FilterTool_MainWindow
@@ -97,7 +99,11 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
     def updateFilterList(self):
         self.Filter_List.clear()
-        self.Filter_List.addItems([f.name for f in self.filter])
+
+        for f in self.filter:
+            item = QtWidgets.QListWidgetItem(f.name, self.Filter_List)
+            item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
+            item.setCheckState(QtCore.Qt.Checked)
 
 
     def removeFilter(self):
@@ -105,6 +111,17 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         self.updateFilterList()
 
     def editFilter(self):
+        pass
+
+    def drawFilters(self):
+
+        axes = [ self.Atenuacion_Plot.axes, self.Fase_Plot.axes, self.Retardo_Plot.axes, self.Q_Plot.axes ]
+        
+        for i in range(len(self.filter)):
+            filter = self.filter[i]
+            drawingFilter(filter=filter, axes=axes, index=i)
+
+    def onFilterItemChanged(self, index):
         pass
 
     def onTemplateBtnClick(self, state):
@@ -115,3 +132,9 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         elif len(self.template) > 0:
             [ tmp.remove() for tmp in self.template ]
             self.template = []
+            
+        # Pasamos a escala logaritmica 
+        self.Atenuacion_Plot.axes.set_xscale('log')
+        
+        # Agregamos la cuadricula
+        self.Atenuacion_Plot.axes.grid(True, which='both')

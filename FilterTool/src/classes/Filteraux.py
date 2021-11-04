@@ -1,11 +1,12 @@
 import scipy.signal as ss
+import scipy.special as sp
 import numpy as np
 import math as mt
 
-def bessel_(wrg, btype, retGroup, tol=0.1,Nmax=25):
+def bessel_(wrg, btype, retGroup, tol=0.1, N=[0,15]):
     tau=retGroup*1e-6 
     success=0
-    for n in range(0,Nmax):
+    for n in range(max(N[0],1), N[1]+1):
         bn,an = ss.bessel(n, 1/tau, btype=btype, analog=True, output='ba', norm='delay')
         w,h = ss.freqs(bn, an, worN=np.linspace(wrg*0.99, wrg*1.01, n=3))
         retGroup_ = -np.diff(np.unwrap(np.angle(h)))/np.diff(w) # Calculo del retardo de grupo en wrg
@@ -19,20 +20,20 @@ def bessel_(wrg, btype, retGroup, tol=0.1,Nmax=25):
         z=p=k=0
     return z,p,k 
 
-def legendre_(w, aten, desnorm, filter_type, Nmax=15):
+def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
     Ax = aten[0]+(aten[1]-aten[0])*desnorm  # Calculamos al atenuación en la frecuencia deseada
     wx = 10**(np.log10(w[0])-desnorm*np.log10(w[1]/w[0]))     # Calculamos la frecuencia deseada
     epsilon= np.sqrt(10**(Ax/10)-1)         # Calculamos el epsilon para la frec deseada
     ord=0
-    for n in range(Nmax):
-        Lp= np.polyval(ss.legendre(n), w[0]**2) # Pol de Legendre en wp
-        La= np.polyval(ss.legendre(n), w[1]**2) # Pol de Legendre en wa
+    for n in range(max(N[0],1), N[1]+1):
+        Lp= np.polyval(sp.legendre(n), w[0]**2) # Pol de Legendre en wp
+        La= np.polyval(sp.legendre(n), w[1]**2) # Pol de Legendre en wa
         if Lp <= np.log10((10**(aten[0]/10)-1)/epsilon**2) and La >= np.log10((10**(aten[1]/10)-1)/epsilon**2):
             ord=n
             break
 
     if ord != 0:
-        a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*ss.legendre(n))
+        a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*sp.legendre(n))
         z,p,k=ss.tf2zpk(a,b)
         p=p[p.imag<=0]  # Elimina polos del semiplano derecho 
         return transform(z,p,k, wx, w, filter_type)
@@ -40,13 +41,13 @@ def legendre_(w, aten, desnorm, filter_type, Nmax=15):
         return 0,0,0
 
 
-def gauss_(w, aten, desnorm, filter_type, Nmax=15):
+def gauss_(w, aten, desnorm, filter_type, N=[0,15]):
     Ax = aten[0]+(aten[1]-aten[0])*desnorm  # Calculamos al atenuación en la frecuencia deseada
     wx = 10**(np.log10(w[0])-desnorm*np.log10(w[1]/w[0]))     # Calculamos la frecuencia deseada
     epsilon= np.sqrt(10**(Ax/10)-1)         # Calculamos el epsilon para la frec deseada
     ord=0
     
-    for n in range(Nmax):
+    for n in range(max(N[0],1), N[1]+1):
         Gp= np.polyval(gaussPol(n), w[0]**2) # Pol de Legendre en wp
         Ga= np.polyval(gaussPol(n), w[1]**2) # Pol de Legendre en wa
         if Gp <= np.log10((10**(aten[0]/10)-1)/epsilon**2) and Ga >= np.log10((10**(aten[1]/10)-1)/epsilon**2):

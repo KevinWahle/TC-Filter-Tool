@@ -1,6 +1,7 @@
 import scipy.signal as ss
 import numpy as np
-import Filteraux as aux
+from scipy.signal.filter_design import zpk2tf
+import src.classes.Filteraux as aux
 
 class Filter:
     def __init__(self, name, filter_type, approx, gain, freqs, aten=[0,0], N=None, qmax=None, 
@@ -9,9 +10,9 @@ class Filter:
         self.filter_type = filter_type      # ‘lowpass’, ‘highpass’, ‘bandpass’, ‘bandstop’
         self.approx = approx                # "butter", "bessel", "cheby1", "cheby2", "ellip", "legendre", "gauss"
         self.gain = gain                    # NO se usa
-        self.A = aten                       # [Ap , Aa]
-        self.freqs = freqs                  # [[fp-, fp+], [fa-, fa+] ] o [fp, fa]
-        self.N = N                          # [Nmin, Nmax]
+        self.A = np.array(aten)       # [Ap , Aa]
+        self.freqs = np.array(freqs)  # [[fp-, fp+], [fa-, fa+] ] o [fp, fa] o wRG
+        self.N = np.array(N)    # [Nmin, Nmax]
         self.qmax = qmax                    # TODO: ¿Como hacemo?
         self.ret = retardo                  # Se carga en us 
         self.desnorm = desnorm
@@ -20,6 +21,10 @@ class Filter:
         self.p = []
         self.k = 0
 
+        self.CalcFilt()
+
+        ord = None
+        wn = None
 
         if (self.approx == 'butter'):
             ord, wn = ss.buttord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
@@ -54,16 +59,25 @@ class Filter:
                 pass
 
         elif (self.approx == 'bessel'):
-            self.z, self.p, self.k = aux.bessel_(self.freqs, self.filter_type, self.ret, self.tol, self.N[1])
+            self.z, self.p, self.k = aux.bessel_(2*np.pi*self.freqs, self.filter_type, self.ret, self.tol, N=N)
             
         elif (self.approx == 'legendre'):
-            self.z, self.p, self.k = aux.legendre_(self.w, aten=self.A, desnorm=self.desnorm, filter_type=self.filter_type, Nmax=N[1])
+            self.z, self.p, self.k = aux.legendre_(2*np.pi*self.freqs, aten=self.A, desnorm=self.desnorm, filter_type=self.filter_type, N=N)
 
         elif (self.approx == 'gauss'):
-            self.z, self.p, self.k = aux.gauss_(self.w, aten=self.A, desnorm=self.desnorm, filter_type=self.filter_type, Nmax=N[1])
+            self.z, self.p, self.k = aux.gauss_(2*np.pi*self.freqs, aten=self.A, desnorm=self.desnorm, filter_type=self.filter_type, N=N)
         else:
             raise ValueError("Error en el ingreso de la aproximación")
         
         print(ord, wn)
-        print(ss.sos2tf(self.sos))
-        print(self.sos)
+        print(self.z, self.p, self.k)
+        print(zpk2tf(self.z, self.p, self.k))
+        # print(ss.sos2tf(self.sos))
+        # print(self.sos)
+
+    def getTF(self):
+        try:
+            return ss.TransferFunction(zpk2tf(self.z, self.p, self.k))
+        except Exception as e:
+            print(e)
+            return None
