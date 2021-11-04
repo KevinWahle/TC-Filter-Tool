@@ -2,14 +2,6 @@ import scipy.signal as ss
 import numpy as np
 import math as mt
 
-def nearIndex(w, woNorm):       
-    # Averiguo cual es el índice de la frecuencia dentro de w  
-    # más cercano a la normalizada
-    diff = []
-    for frec in w:
-        diff.append(abs(w-woNorm))
-    return diff.index(min(frec)) 
-
 def bessel_(wrg, btype, retGroup, tol=0.1,Nmax=25):
     tau=retGroup*1e-6 
     success=0
@@ -20,7 +12,7 @@ def bessel_(wrg, btype, retGroup, tol=0.1,Nmax=25):
         if retGroup_[1]>= tau*(1-tol):
             success=1
             break
-        
+
     if success==1:
         z,p,k = ss.tf2zpk(bn,an)
     else: 
@@ -29,7 +21,7 @@ def bessel_(wrg, btype, retGroup, tol=0.1,Nmax=25):
 
 def legendre_(w, aten, desnorm, filter_type, Nmax=15):
     Ax = aten[0]+(aten[1]-aten[0])*desnorm  # Calculamos al atenuación en la frecuencia deseada
-    wx = 10**(w[0]+desnorm*(w[1]-w[0]))     # TODO: Calculamos la frecuencia deseada
+    wx = 10**(np.log10(w[0])-desnorm*np.log10(w[1]/w[0]))     # Calculamos la frecuencia deseada
     epsilon= np.sqrt(10**(Ax/10)-1)         # Calculamos el epsilon para la frec deseada
     ord=0
     for n in range(Nmax):
@@ -43,16 +35,17 @@ def legendre_(w, aten, desnorm, filter_type, Nmax=15):
         a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*ss.legendre(n))
         z,p,k=ss.tf2zpk(a,b)
         p=p[p.imag<=0]  # Elimina polos del semiplano derecho 
-        return transform(z,p,k,filter_type)
+        return transform(z,p,k, wx, w, filter_type)
     else:
-        return 0
+        return 0,0,0
 
 
 def gauss_(w, aten, desnorm, filter_type, Nmax=15):
     Ax = aten[0]+(aten[1]-aten[0])*desnorm  # Calculamos al atenuación en la frecuencia deseada
-    wx = 10**(w[0]+desnorm*(w[1]-w[0]))     # TODO: Calculamos la frecuencia deseada
-    ord=0
+    wx = 10**(np.log10(w[0])-desnorm*np.log10(w[1]/w[0]))     # Calculamos la frecuencia deseada
     epsilon= np.sqrt(10**(Ax/10)-1)         # Calculamos el epsilon para la frec deseada
+    ord=0
+    
     for n in range(Nmax):
         Gp= np.polyval(gaussPol(n), w[0]**2) # Pol de Legendre en wp
         Ga= np.polyval(gaussPol(n), w[1]**2) # Pol de Legendre en wa
@@ -64,7 +57,7 @@ def gauss_(w, aten, desnorm, filter_type, Nmax=15):
         a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*gaussPol(n))
         z,p,k=ss.tf2zpk(a,b)
         p=p[p.imag<=0]  # Elimina polos del semiplano derecho 
-        return transform(z,p,k,filter_type)
+        return transform(z, p, k, wx, w, filter_type)
     else:
         return 0
 
@@ -72,17 +65,21 @@ def gaussPol(n):
     # Genera un arreglo con los coeficientes del Pol de Gauss.
     # implementar en w1^2 
     pol=[]
-    for i in range(n):
+    for i in range(1,n+1):
         pol.append(1/mt.factorial(i))
     return pol
 
-def transform(z, p, k, wx, filter_type):
+def transform(z, p, k, wx, w,filter_type):
     if filter_type == 'lowpass':
         z,p,k=ss.lp2lp_zpk(z,p,k,wx)
     elif filter_type == 'highpass':
         z,p,k=ss.lp2hp_zpk(z,p,k,wx)
     elif filter_type == 'bandpass':
-        z,p,k=ss.lp2bp_zpk(z,p,k,wx)    # TODO: Ancho de banda?
-    elif filter_type == 'bandstop': 
-        z,p,k=ss.lp2bs_zpk(z,p,k,wx)    # TODO: Ancho de banda?
+        w0=mt.sqrt(w[1]*w[0])
+        BW= (w[1]-w[0])/w0
+        z,p,k=ss.lp2bp_zpk(z,p,k,w0,BW)    
+    elif filter_type == 'bandstop':
+        w0=mt.sqrt(w[1]*w[0])
+        BW= (w[1]-w[0])/w0 
+        z,p,k=ss.lp2bs_zpk(z,p,k,w0,BW)   
     return z,p,k
