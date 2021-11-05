@@ -3,14 +3,14 @@ import scipy.special as sp
 import numpy as np
 import math as mt
 
-def bessel_(wrg, btype, retGroup, tol=0.1, N=[0,15]):
-    tau=retGroup*1e-6 
+def bessel_(wrg, retGroup, tol=0.1, N=[0,15]):
+    tau= retGroup*1e-6
     success=0
     for n in range(max(N[0],1), N[1]+1):
-        bn,an = ss.bessel(n, 1/tau, btype=btype, analog=True, output='ba', norm='delay')
-        w,h = ss.freqs(bn, an, worN=np.linspace(wrg*0.99, wrg*1.01, num=3))
+        bn,an = ss.bessel(n, 1/tau, btype="lowpass", analog=True, output='ba', norm='delay')
+        w, h = ss.freqs(bn, an, worN=np.linspace(wrg*0.99, wrg*1.01, num=3))
         retGroup_ = -np.diff(np.unwrap(np.angle(h)))/np.diff(w) # Calculo del retardo de grupo en wrg
-        if retGroup_[1]>= tau*(1-tol):
+        if retGroup_[1] >= tau*(1-tol):
             success=1
             break
 
@@ -86,8 +86,8 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
     # else:
     #     return 0
 
-def gauss_(wrg, btype, retGroup, tol=0.1, N=[0,15]):
-    tau=retGroup*1e-6 
+def gauss_(wrg, retGroup, tol=0.1, N=[0,15]):
+    tau= retGroup*1e-6
     success=0
     num=den=[]
 
@@ -102,7 +102,7 @@ def gauss_(wrg, btype, retGroup, tol=0.1, N=[0,15]):
     if success==1:
         z,p,k = ss.tf2zpk(num,den)
         p=p[p.imag<=0]  # Elimina polos del semiplano derecho
-        return transform(z,p,k, wx=wrg, w=0, filter_type=btype)
+        return z,p,k
         
     else: 
         return 0,0,0
@@ -141,11 +141,15 @@ def Wnorm(wa,wp,tipo):
 
 # Calcula el polinomio de legendre de orden n de w**2
 def LegenPol(n):
-  n=5
+#   n=5
   pol1=sp.legendre(n)
   pol2=np.zeros(2*n+1)
 
   for i in range(0,n+1,1):
     pol2[i*2]=pol1[i]
-  pol2=pol2[::-1]  
+  pol2=pol2[::-1]
+  
+  print("Legendre(",n,"): ", np.array(pol1))
+  print("LegenPol(",n,"): ", pol2)
+
   return pol2    

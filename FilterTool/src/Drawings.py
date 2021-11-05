@@ -36,31 +36,42 @@ def drawingFilter(filter, axes, index):    # axes = [ Aten, Fase, Retardo de Gru
     try:
         color = 'C' + str(index)
         H = filter.getTF()
-        w, mag, fase = ss.bode(H, w=np.logspace(-10, 6, num=12000))
+        w, mag, fase = ss.bode(H, w=np.logspace(-1, 7, num=14000))
         aten = -mag
         freq = w/(2*np.pi)
         # Atenuacion
-        print("Dibujo Ateniacion")
+        print("Dibujo Atenuacion")
+        # axes[0].plot(w, aten, color=color, label=filter.name)            # OJO!!! DIBUJO EN RADIANES
         axes[0].plot(freq, aten, color=color, label=filter.name)
         axes[0].legend()
+        axes[0].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+        axes[0].set_ylabel(r'$Atenuación\ [dB]$', fontsize=10)
+        axes[0].set_title('Atenuación', fontsize=15)
         axes[0].set_xscale('log')
         axes[0].grid(which='both', zorder=0)
 
         # Fase
         print("Dibujo fase")
         axes[1].plot(freq, fase, color=color, label=filter.name)
+        axes[1].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+        axes[1].set_ylabel(r'$Fase\ [°]$', fontsize=10)
+        axes[1].set_title('Fase', fontsize=15)
         axes[1].legend()
         axes[1].set_xscale('log')
         axes[1].grid(which='both', zorder=0)
 
         # Retardo de grupo
         print("Dibujo retardo")
-        delay = -np.diff(np.unwrap(fase))/np.diff(w)     # Calculo del retardo de grupo, en funcion de w
-        freqDelay = freq[:-1]   # Tiene un valor menos
+        delay = -np.diff(np.unwrap(fase*np.pi/180))/np.diff(w)     # Calculo del retardo de grupo, en funcion de w
+        freqDelay = freq[1:]   # Tiene un valor menos
+        delay = delay*1e6
         axes[2].plot(freqDelay, delay, color=color, label=filter.name)    # Pero lo gafico en funcoin de freq
-        axes[2].legend()
-        # axes[2].set_xscale('log')
+        axes[2].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+        axes[2].set_ylabel(r'$Retardo\ [\mu s]$', fontsize=10)
+        axes[2].set_title('Retardo', fontsize=15)
+        axes[2].set_xscale('log')
         axes[2].grid(which='both', zorder=0)
+        axes[2].legend()
 
         #TODO: Polos y ceros
         zeros, poles = H.zeros, H.poles
@@ -70,7 +81,7 @@ def drawingFilter(filter, axes, index):    # axes = [ Aten, Fase, Retardo de Gru
         axes[3].set_xlabel(r'$\sigma$', fontsize=15)
         axes[3].set_ylabel(r'$jw$', fontsize=15)
         axes[3].set_title('Gráfico Polos y Ceros')
-        axes[3].grid(True)
+        axes[3].grid(which='both', zorder=0)
         axes[3].legend()
 
         return 0

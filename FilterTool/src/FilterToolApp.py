@@ -35,12 +35,27 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         self.template = []
 
 
+        ############
+        self.Nombre_T.setText("Filtro")
+        self.Filtro_B.setCurrentIndex(0)
+        self.Aproximacion_B.setCurrentIndex(0)
+        self.Ap_T.setValue(0.5)
+        self.Aa_T.setValue(20)
+        self.Fp_T.setValue(500)
+        self.Fa_T.setValue(2000)
+        self.Fa_T.setValue(2000)
+        self.Nmax_T.setValue(100)
+
+
+
     def onFilterTypeChanged(self, index):
 
         # Visibilidad de textboxes
         
         self.Normal_L.setVisible(index in [0, 1])
         self.Pass_Band_L.setVisible(index in [2, 3])
+        self.Attenuation_L.setVisible(index in [0, 1, 2, 3])
+        self.Group_Delay_L.setVisible(index == 4)
 
         # Cambio de imagenes
         filterImg = [ "res/lowpasstemplate.png", "res/highpasstemplate.png",
@@ -71,12 +86,18 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         
         
         if filterType in ["lowpass", "highpass"]:
-            freqs = [ self.Fp_T_2.value(), self.Fa_T_2.value() ]    # [Fp, Fa]
+            freqs = [ self.Fp_T.value(), self.Fa_T.value() ]    # [Fp, Fa]
+        elif filterType == 'groupdelay':
+            freqs = self.ft_T.value()       # fgd
         else:
             freqs = [ [ self.Fpm_T.value(), self.Fpp_T.value() ], [self.Fam_T.value(), self.Fap_T.value()] ]    # [ [Fp-, Fp+], [Fa-, Fa+] ]
         
         qmax = self.Qmax_T.value()
-        deonrm = self.Slider.value()
+        denorm = self.Slider.value()/100
+
+        gd = self.Gd_T.value()  # En us
+        ft = self.ft_T.value()
+        tol = self.Tol_T.value()/100
 
         # DEBUG
         print("Nombre: " + name)
@@ -89,18 +110,21 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         # print("Fpp: " + str(freqs[0][1]))
         # print("Fam: " + str(freqs[1][0]))
         # print("Fap: " + str(freqs[1][1]))
-        print("Fp: " + str(freqs[0]))
-        print("Fa: " + str(freqs[1]))
+        # print("Fp: " + str(freqs[0]))
+        # print("Fa: " + str(freqs[1]))
+        print("Freqs: ", str(freqs))
         print("Nmin: " + str(n[0]))
         print("Nmax: " + str(n[1]))
         print("Qmax: " + str(qmax))
-        print("Deonrm: " + str(deonrm))
+        print("Deonrm: " + str(denorm))
+        print("Gd: " + str(gd))
+        print("Ft: " + str(ft))
+        print("Tol: " + str(tol))
 
         # Agregar filtro a la lista
         self.filter.append(Filter(name=name, filter_type=filterType, approx=approx, gain=gain, aten=aten,
-                                    freqs=freqs, N=n, qmax=qmax, desnorm=deonrm/100))
+                                    freqs=freqs, N=n, qmax=qmax, desnorm=denorm, retardo=gd, tol=tol))
         self.updateFilterList()
-
         self.drawFilters()
 
 
@@ -122,8 +146,10 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
     def drawFilters(self):
 
-        axes = [ self.Atenuacion_Plot.axes, self.Fase_Plot.axes, self.Retardo_Plot.axes, self.Q_Plot.axes ]
+        axes = [ self.Atenuacion_Plot.axes, self.Fase_Plot.axes, self.Retardo_Plot.axes, self.PZ_Plot.axes, self.Q_Plot.axes ]
         
+        # [ax.clear() for ax in axes]
+
         for i in range(len(self.filter)):
             filter = self.filter[i]
             drawingFilter(filter=filter, axes=axes, index=i)

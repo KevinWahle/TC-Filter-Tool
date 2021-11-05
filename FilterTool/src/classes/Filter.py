@@ -10,13 +10,13 @@ class Filter:
         self.filter_type = filter_type      # ‘lowpass’, ‘highpass’, ‘bandpass’, ‘bandstop’
         self.approx = approx                # "butter", "bessel", "cheby1", "cheby2", "ellip", "legendre", "gauss"
         self.gain = gain                    # NO se usa
-        self.A = np.array(aten)       # [Ap , Aa]
-        self.freqs = np.array(freqs)  # [[fp-, fp+], [fa-, fa+] ] o [fp, fa] o wRG
-        self.N = np.array(N)    # [Nmin, Nmax]
+        self.A = np.array(aten)             # [Ap , Aa]
+        self.freqs = np.array(freqs)        # [[fp-, fp+], [fa-, fa+] ] o [fp, fa] o wRG
+        self.N = np.array(N)                # [Nmin, Nmax]
         self.qmax = qmax                    # TODO: ¿Como hacemo?
         self.ret = retardo                  # Se carga en us 
         self.desnorm = desnorm
-        self.tol= tol       # Para Bessel
+        self.tol= tol       # Para group delay
         self.z = []
         self.p = []
         self.k = 0
@@ -43,7 +43,7 @@ class Filter:
                 pass
 
         elif (self.approx == 'cheby2'):
-            ord, wn = ss.cheb2ord(2*np.pi*self.freqs[1], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
+            ord, wn = ss.cheb2ord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
             
             if ord in range(self.N[0], self.N[1]):
                 self.z, self.p, self.k = ss.cheby2(ord, self.A[1], wn, btype=self.filter_type, analog=True, output='zpk')
@@ -59,13 +59,13 @@ class Filter:
                 pass
 
         elif (self.approx == 'bessel'):
-            self.z, self.p, self.k = aux.bessel_(2*np.pi*self.freqs, self.filter_type, self.ret, self.tol, N=N)
+            self.z, self.p, self.k = aux.bessel_(2*np.pi*self.freqs, self.ret, self.tol, N=N)
             
         elif (self.approx == 'legendre'):
             self.z, self.p, self.k = aux.legendre_(2*np.pi*self.freqs, aten=self.A, desnorm=self.desnorm, filter_type=self.filter_type, N=N)
 
         elif (self.approx == 'gauss'):
-            self.z, self.p, self.k = aux.gauss_(2*np.pi*self.freqs, aten=self.A, desnorm=self.desnorm, filter_type=self.filter_type, N=N)
+            self.z, self.p, self.k = aux.gauss_(2*np.pi*self.freqs, aten=self.A, desnorm=self.desnorm, N=N)
         else:
             raise ValueError("Error en el ingreso de la aproximación")
         
