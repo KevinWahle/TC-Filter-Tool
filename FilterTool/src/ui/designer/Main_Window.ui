@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1134</width>
-    <height>1160</height>
+    <height>1008</height>
    </rect>
   </property>
   <property name="font">
@@ -39,6 +39,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <layout class="QVBoxLayout" name="verticalLayout_3">
+              <property name="spacing">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QLineEdit" name="Nombre_T">
                 <property name="sizePolicy">
@@ -133,7 +136,7 @@
                  <string/>
                 </property>
                 <property name="pixmap">
-                 <pixmap>Imagenes/lowpasstemplate.png</pixmap>
+                 <pixmap>C:/Users/KevinWahle/.designer/backup/Imagenes/lowpasstemplate.png</pixmap>
                 </property>
                </widget>
               </item>
@@ -205,10 +208,10 @@
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_5">
                  <property name="topMargin">
-                  <number>11</number>
+                  <number>1</number>
                  </property>
                  <property name="bottomMargin">
-                  <number>11</number>
+                  <number>1</number>
                  </property>
                  <item>
                   <widget class="QLabel" name="Ganancia_L">
@@ -219,14 +222,14 @@
                     </sizepolicy>
                    </property>
                    <property name="text">
-                    <string>Ganancia: </string>
+                    <string>Ganancia:</string>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QDoubleSpinBox" name="Ganancia_T">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -264,124 +267,151 @@
                </widget>
               </item>
               <item>
-               <widget class="QWidget" name="horizontalWidget_4" native="true">
+               <widget class="QWidget" name="Attenuation_L" native="true">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_6">
+                <layout class="QVBoxLayout" name="verticalLayout_29">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>1</number>
+                 </property>
                  <property name="topMargin">
                   <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>1</number>
                  </property>
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QLabel" name="Ganancia_L_2">
+                  <widget class="QWidget" name="horizontalWidget_5" native="true">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="text">
-                    <string>Aa:         </string>
-                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_7">
+                    <property name="topMargin">
+                     <number>2</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>1</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="Ganancia_L_3">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Ap:         </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="Ap_T">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="accessibleDescription">
+                       <string/>
+                      </property>
+                      <property name="wrapping">
+                       <bool>false</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="showGroupSeparator" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="prefix">
+                       <string/>
+                      </property>
+                      <property name="suffix">
+                       <string> dB</string>
+                      </property>
+                      <property name="maximum">
+                       <double>999999999.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QDoubleSpinBox" name="Aa_T">
+                  <widget class="QWidget" name="horizontalWidget_4" native="true">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="accessibleDescription">
-                    <string/>
-                   </property>
-                   <property name="wrapping">
-                    <bool>false</bool>
-                   </property>
-                   <property name="buttonSymbols">
-                    <enum>QAbstractSpinBox::NoButtons</enum>
-                   </property>
-                   <property name="showGroupSeparator" stdset="0">
-                    <bool>false</bool>
-                   </property>
-                   <property name="prefix">
-                    <string/>
-                   </property>
-                   <property name="suffix">
-                    <string> dB</string>
-                   </property>
-                   <property name="maximum">
-                    <double>999999999.000000000000000</double>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QWidget" name="horizontalWidget_5" native="true">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <layout class="QHBoxLayout" name="horizontalLayout_7">
-                 <property name="topMargin">
-                  <number>0</number>
-                 </property>
-                 <property name="bottomMargin">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="Ganancia_L_3">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string>Ap:         </string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QDoubleSpinBox" name="Ap_T">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="accessibleDescription">
-                    <string/>
-                   </property>
-                   <property name="wrapping">
-                    <bool>false</bool>
-                   </property>
-                   <property name="buttonSymbols">
-                    <enum>QAbstractSpinBox::NoButtons</enum>
-                   </property>
-                   <property name="showGroupSeparator" stdset="0">
-                    <bool>false</bool>
-                   </property>
-                   <property name="prefix">
-                    <string/>
-                   </property>
-                   <property name="suffix">
-                    <string> dB</string>
-                   </property>
-                   <property name="maximum">
-                    <double>999999999.000000000000000</double>
-                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_6">
+                    <property name="topMargin">
+                     <number>2</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>2</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="Ganancia_L_2">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Aa:         </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="Aa_T">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="accessibleDescription">
+                       <string/>
+                      </property>
+                      <property name="wrapping">
+                       <bool>false</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="showGroupSeparator" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="prefix">
+                       <string/>
+                      </property>
+                      <property name="suffix">
+                       <string> dB</string>
+                      </property>
+                      <property name="maximum">
+                       <double>999999999.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                 </layout>
@@ -389,7 +419,22 @@
               </item>
               <item>
                <widget class="QWidget" name="Pass_Band_L" native="true">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <layout class="QVBoxLayout" name="verticalLayout_10">
+                 <property name="spacing">
+                  <number>1</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item>
                   <widget class="QWidget" name="horizontalWidget_6" native="true">
                    <property name="sizePolicy">
@@ -399,6 +444,9 @@
                     </sizepolicy>
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_8">
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
                     <property name="bottomMargin">
                      <number>0</number>
                     </property>
@@ -411,14 +459,14 @@
                        </sizepolicy>
                       </property>
                       <property name="text">
-                       <string>fa-:      </string>
+                       <string>fa-:          </string>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <widget class="QDoubleSpinBox" name="Fam_T">
                       <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
@@ -473,14 +521,14 @@
                        </sizepolicy>
                       </property>
                       <property name="text">
-                       <string>fp-:      </string>
+                       <string>fp-:          </string>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <widget class="QDoubleSpinBox" name="Fpm_T">
                       <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
@@ -535,7 +583,7 @@
                        </sizepolicy>
                       </property>
                       <property name="text">
-                       <string>fp+:     </string>
+                       <string>fp+:         </string>
                       </property>
                      </widget>
                     </item>
@@ -597,7 +645,7 @@
                        </sizepolicy>
                       </property>
                       <property name="text">
-                       <string>fa+:     </string>
+                       <string>fa+:         </string>
                       </property>
                      </widget>
                     </item>
@@ -640,16 +688,31 @@
               </item>
               <item>
                <widget class="QWidget" name="Normal_L" native="true">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <layout class="QVBoxLayout" name="verticalLayout_11">
+                 <property name="spacing">
+                  <number>1</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item>
-                  <widget class="QWidget" name="horizontalWidget_16" native="true">
+                  <widget class="QWidget" name="horizontalWidget_15" native="true">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_21">
+                   <layout class="QHBoxLayout" name="horizontalLayout_20">
                     <property name="topMargin">
                      <number>0</number>
                     </property>
@@ -657,7 +720,7 @@
                      <number>0</number>
                     </property>
                     <item>
-                     <widget class="QLabel" name="Ganancia_L_15">
+                     <widget class="QLabel" name="Ganancia_L_14">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                         <horstretch>0</horstretch>
@@ -665,12 +728,12 @@
                        </sizepolicy>
                       </property>
                       <property name="text">
-                       <string>fa:       </string>
+                       <string>fp:           </string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDoubleSpinBox" name="Fa_T_2">
+                     <widget class="QDoubleSpinBox" name="Fp_T">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -704,14 +767,14 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QWidget" name="horizontalWidget_15" native="true">
+                  <widget class="QWidget" name="horizontalWidget_16" native="true">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_20">
+                   <layout class="QHBoxLayout" name="horizontalLayout_21">
                     <property name="topMargin">
                      <number>0</number>
                     </property>
@@ -719,7 +782,7 @@
                      <number>0</number>
                     </property>
                     <item>
-                     <widget class="QLabel" name="Ganancia_L_14">
+                     <widget class="QLabel" name="Ganancia_L_15">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                         <horstretch>0</horstretch>
@@ -727,12 +790,12 @@
                        </sizepolicy>
                       </property>
                       <property name="text">
-                       <string>fp:       </string>
+                       <string>fa:           </string>
                       </property>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QDoubleSpinBox" name="Fp_T_2">
+                     <widget class="QDoubleSpinBox" name="Fa_T">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                         <horstretch>0</horstretch>
@@ -769,6 +832,222 @@
                </widget>
               </item>
               <item>
+               <widget class="QWidget" name="Group_Delay_L" native="true">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_28">
+                 <property name="spacing">
+                  <number>1</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QWidget" name="horizontalWidget_28" native="true">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_35">
+                    <property name="leftMargin">
+                     <number>9</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="Ganancia_L_26">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Gd:          </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="Gd_T">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="accessibleDescription">
+                       <string/>
+                      </property>
+                      <property name="wrapping">
+                       <bool>false</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="showGroupSeparator" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="prefix">
+                       <string/>
+                      </property>
+                      <property name="suffix">
+                       <string> μs</string>
+                      </property>
+                      <property name="maximum">
+                       <double>999999999.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QWidget" name="horizontalWidget_29" native="true">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_36">
+                    <property name="leftMargin">
+                     <number>10</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="Ganancia_L_27">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>ft:            </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="ft_T">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="accessibleDescription">
+                       <string/>
+                      </property>
+                      <property name="wrapping">
+                       <bool>false</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="showGroupSeparator" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="prefix">
+                       <string/>
+                      </property>
+                      <property name="suffix">
+                       <string> Hz</string>
+                      </property>
+                      <property name="maximum">
+                       <double>999999999.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QWidget" name="horizontalWidget_30" native="true">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_37">
+                    <property name="leftMargin">
+                     <number>9</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLabel" name="Ganancia_L_28">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>Tol:          </string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QDoubleSpinBox" name="Tol_T">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="accessibleDescription">
+                       <string/>
+                      </property>
+                      <property name="wrapping">
+                       <bool>false</bool>
+                      </property>
+                      <property name="buttonSymbols">
+                       <enum>QAbstractSpinBox::NoButtons</enum>
+                      </property>
+                      <property name="showGroupSeparator" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="prefix">
+                       <string/>
+                      </property>
+                      <property name="suffix">
+                       <string> %</string>
+                      </property>
+                      <property name="maximum">
+                       <double>999999999.000000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
                <widget class="QWidget" name="horizontalWidget_9" native="true">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -777,6 +1056,12 @@
                  </sizepolicy>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_12">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
@@ -789,14 +1074,14 @@
                     </sizepolicy>
                    </property>
                    <property name="text">
-                    <string>N min:    </string>
+                    <string>N min: </string>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QDoubleSpinBox" name="Nmin_T">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -839,6 +1124,9 @@
                  </sizepolicy>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_13">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
                  <property name="topMargin">
                   <number>0</number>
                  </property>
@@ -854,14 +1142,14 @@
                     </sizepolicy>
                    </property>
                    <property name="text">
-                    <string>N max:   </string>
+                    <string>N max:</string>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QDoubleSpinBox" name="Nmax_T">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -904,6 +1192,15 @@
                  </sizepolicy>
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_11">
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item>
                   <widget class="QLabel" name="Ganancia_L_7">
                    <property name="sizePolicy">
@@ -913,14 +1210,14 @@
                     </sizepolicy>
                    </property>
                    <property name="text">
-                    <string>Q max:   </string>
+                    <string>Q max:</string>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QDoubleSpinBox" name="Qmax_T">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -952,71 +1249,79 @@
                </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_16">
-                <item>
-                 <widget class="QLabel" name="label_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Denorm.</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSlider" name="Slider">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximum">
-                   <number>100</number>
-                  </property>
-                  <property name="tracking">
-                   <bool>true</bool>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="invertedAppearance">
-                   <bool>false</bool>
-                  </property>
-                  <property name="invertedControls">
-                   <bool>false</bool>
-                  </property>
-                  <property name="tickPosition">
-                   <enum>QSlider::NoTicks</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_5">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>20</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>0</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QWidget" name="widget" native="true">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <layout class="QHBoxLayout" name="horizontalLayout_16">
+                 <item>
+                  <widget class="QLabel" name="label_4">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Denorm.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSlider" name="Slider">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximum">
+                    <number>100</number>
+                   </property>
+                   <property name="tracking">
+                    <bool>true</bool>
+                   </property>
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="invertedAppearance">
+                    <bool>false</bool>
+                   </property>
+                   <property name="invertedControls">
+                    <bool>false</bool>
+                   </property>
+                   <property name="tickPosition">
+                    <enum>QSlider::NoTicks</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_5">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>20</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
               </item>
               <item>
                <widget class="QListWidget" name="Filter_List">
@@ -1057,6 +1362,12 @@
                  <property name="sizeConstraint">
                   <enum>QLayout::SetDefaultConstraint</enum>
                  </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item>
                   <widget class="QPushButton" name="Minus_Btn">
                    <property name="sizePolicy">
@@ -1076,7 +1387,7 @@
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>Imagenes/-.jpg</normaloff>Imagenes/-.jpg</iconset>
+                     <normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/-.jpg</normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/-.jpg</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -1111,7 +1422,7 @@
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>Imagenes/Edit.png</normaloff>Imagenes/Edit.png</iconset>
+                     <normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/Edit.png</normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/Edit.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -1155,7 +1466,7 @@
                    </property>
                    <property name="icon">
                     <iconset>
-                     <normaloff>Imagenes/+.jpg</normaloff>Imagenes/+.jpg</iconset>
+                     <normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/+.jpg</normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/+.jpg</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -1210,7 +1521,7 @@
                    <widget class="PlotWidget" name="Atenuacion_Plot" native="true"/>
                   </item>
                   <item>
-                   <widget class="QWidget" name="Fase_Plot" native="true"/>
+                   <widget class="PlotWidget" name="Fase_Plot" native="true"/>
                   </item>
                   <item>
                    <widget class="QWidget" name="horizontalWidget" native="true">
@@ -1661,7 +1972,7 @@
                        </property>
                        <property name="icon">
                         <iconset>
-                         <normaloff>Imagenes/-.jpg</normaloff>Imagenes/-.jpg</iconset>
+                         <normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/-.jpg</normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/-.jpg</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -1696,7 +2007,7 @@
                        </property>
                        <property name="icon">
                         <iconset>
-                         <normaloff>Imagenes/+.jpg</normaloff>Imagenes/+.jpg</iconset>
+                         <normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/+.jpg</normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/+.jpg</iconset>
                        </property>
                        <property name="iconSize">
                         <size>
@@ -1801,7 +2112,7 @@
                        <x>0</x>
                        <y>0</y>
                        <width>398</width>
-                       <height>1024</height>
+                       <height>832</height>
                       </rect>
                      </property>
                      <layout class="QVBoxLayout" name="verticalLayout_20">
@@ -1861,7 +2172,7 @@
   <action name="actionGuardar">
    <property name="icon">
     <iconset>
-     <normaloff>Imagenes/Save.png</normaloff>Imagenes/Save.png</iconset>
+     <normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/Save.png</normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/Save.png</iconset>
    </property>
    <property name="text">
     <string>Guardar</string>
@@ -1870,7 +2181,7 @@
   <action name="actionGuardar_como">
    <property name="icon">
     <iconset>
-     <normaloff>Imagenes/Save_As.png</normaloff>Imagenes/Save_As.png</iconset>
+     <normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/Save_As.png</normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/Save_As.png</iconset>
    </property>
    <property name="text">
     <string>Guardar como</string>
@@ -1879,7 +2190,7 @@
   <action name="actionAbrir">
    <property name="icon">
     <iconset>
-     <normaloff>Imagenes/Open.ico</normaloff>Imagenes/Open.ico</iconset>
+     <normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/Open.ico</normaloff>C:/Users/KevinWahle/.designer/backup/Imagenes/Open.ico</iconset>
    </property>
    <property name="text">
     <string>Abrir</string>
@@ -1903,17 +2214,17 @@
  <connections>
   <connection>
    <sender>Slider</sender>
-   <signal>sliderMoved(int)</signal>
+   <signal>valueChanged(int)</signal>
    <receiver>label_5</receiver>
    <slot>setNum(int)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>735</y>
+     <x>166</x>
+     <y>748</y>
     </hint>
     <hint type="destinationlabel">
-     <x>278</x>
-     <y>735</y>
+     <x>257</x>
+     <y>748</y>
     </hint>
    </hints>
   </connection>
