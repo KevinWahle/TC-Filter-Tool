@@ -3,10 +3,12 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMainWindow
+import numpy as np
 from src.Drawings import drawTemplate, drawingFilter
 from src.classes.Filter import Filter
 
 from src.ui.widgets.Main_Window import FilterTool_MainWindow
+from src.ui.widgets.TeXLabel import TeXLabel
 
 
 class FilterToolApp(QMainWindow, FilterTool_MainWindow):
@@ -22,17 +24,24 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
         # Conexiones
 
+        #Diseño
         self.Plus_Btn.clicked.connect(self.addFilter)
         self.Minus_Btn.clicked.connect(self.removeFilter)
         self.Edit_Btn.clicked.connect(self.editFilter)
         self.Filtro_B.currentIndexChanged.connect(self.onFilterTypeChanged)
         self.Plantilla_Box.stateChanged.connect(self.onTemplateBtnClick)
 
+        # Etapas
+        self.Seleccionado_B.currentIndexChanged.connect(self.onStageFilterChanged)
+        self.Plus_Btn_5.clicked.connect(self.onStageCreated)
 
         # variables y arreglos
 
         self.filter = []
         self.template = []
+
+        self.stageZeros = []
+        self.stagePoles = []
 
 
         ############
@@ -130,11 +139,14 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
     def updateFilterList(self):
         self.Filter_List.clear()
+        self.Seleccionado_B.clear()
 
         for f in self.filter:
             item = QtWidgets.QListWidgetItem(f.name, self.Filter_List)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
             item.setCheckState(QtCore.Qt.Checked)
+
+        self.Seleccionado_B.addItems([f.name for f in self.filter])
 
 
     def removeFilter(self):
@@ -172,3 +184,37 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             self.template = []
             
         self.drawFilters()
+
+    def onStageFilterChanged(self, index):
+        
+        filter = self.filter[index]
+
+        self.Polos_B.clear()
+        self.Ceros_B.clear()
+
+        self.stageZeros = filter.z
+        self.stagePoles = filter.p
+
+        self.Polos_B.addItems([self.displayPZ(p) for p in filter.p if p.imag >= 0])     # Muestro polos y ceros, una sola vez si es conjugado
+        self.Ceros_B.addItems([self.displayPZ(z) for z in filter.z if z.imag >= 0])
+
+    def displayPZ(self, complex) -> str:
+
+        real = complex.real
+        imag = complex.imag
+        f = np.sqrt(real**2 + imag**2)/(2*np.pi)
+        
+        if (imag == 0):
+            return "n = 1\tf0 = " + str(f)
+        elif (real == 0):
+            return "n = 2\tf0 = " + str(f) + "\tQ = ∞"
+        
+        xi = -np.cos(np.angle(complex))
+        Q = 1/(2*xi)
+        return "n = 2\tf0 = " + str(f) +"\tQ = " + str(Q)
+
+
+    def onStageCreated(self):
+        tfPlot = TeXLabel(text="$T_{f}$")
+        self.verticalLayout_20.addWidget(tfPlot)
+        print(tfPlot)
