@@ -43,8 +43,8 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
 
     ord=0
     for n in range(max(N[0],1), N[1]+1):
-        Lp= np.polyval(sp.legendre(n), (w[0]/wx)**2)            # Pol de Legendre en wp
-        La= np.polyval(sp.legendre(n), (w[1]/wx)**2)            # Pol de Legendre en wa
+        Lp= np.polyval(LegenPol2(n), (w[0]/wx)**2)            # Pol de Legendre en wp
+        La= np.polyval(LegenPol2(n), (w[1]/wx)**2)            # Pol de Legendre en wa
         
         print("Pruebo n=", n)
         print("Lp= ", Lp, " La= ", La)
@@ -55,10 +55,10 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
             break
 
     if ord != 0:
-        a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*LegenPol(n))
+        a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*LegenPol2(n))
         z,p,k=ss.tf2zpk(a,b)
         p=p[p.real<=0]  # Elimina polos del semiplano derecho 
-        return z,p,k
+        #return z,p,k
         return transform(z,p,k, wx, w, filter_type)
     else:
         print("Algo malio sal")
@@ -152,4 +152,51 @@ def LegenPol(n):
   print("Legendre(",n,"): ", np.array(pol1))
   print("LegenPol(",n,"): ", pol2)
 
-  return pol2    
+  return pol2
+
+def LegenPol2(n):
+        if n == 0:
+            return [0]
+
+        if n % 2:  # n impar
+            k = (n - 1) // 2
+            a0 = 1 / (np.sqrt(2) * (k + 1))
+
+            poly = np.poly1d([a0])
+            for i in range(1, k + 1):
+                ai = a0 * (2 * i + 1)
+                new_poly = ai * sp.legendre(i)
+                poly = np.polyadd(poly, new_poly)
+            poly = np.polymul(poly, poly)  # Elevo al cuadrado
+
+        else:  # n par
+            k = (n - 2) // 2
+            if k % 2:  # k impar
+                a1 = 3 / np.sqrt((k + 1) * (k + 2))
+                poly = np.poly1d(0)
+
+                for i in range(1, k + 1):
+                    if i % 2:  # i impar
+                        ai = a1 * (2 * i + 1)/3
+                        new_poly = ai * sp.legendre(i)
+                        poly = np.polyadd(poly, new_poly)
+            else:  # k par
+                a0 = 1 / np.sqrt((k + 1) * (k + 2))
+                poly = np.poly1d(a0)
+
+                for i in range(1, k + 1):
+                    if not i % 2:  # i par
+                        ai = a0 * (2 * i + 1)
+                        new_poly = ai * sp.legendre(i)
+                        poly = np.polyadd(poly, new_poly)
+
+            poly = np.polymul(poly, poly)  # Elevo al cuadrado
+            poly = np.polymul(poly, np.poly1d([1, 1]))  # Multiplico por (x + 1)
+
+        poly = np.polyint(poly)  # Integro
+        x2 = np.poly1d([2, 0, -1])  # Borde superior
+        x1 = np.poly1d([-1])  # Borde inferior
+
+        Ln = np.polysub(np.polyval(poly, x2), np.polyval(poly, x1))
+
+        return Ln        
