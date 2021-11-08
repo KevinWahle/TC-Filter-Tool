@@ -65,6 +65,7 @@ class Filter:
             self.z, self.p, self.k = aux.legendre_(2*np.pi*self.freqs, aten=self.A, desnorm=self.desnorm, filter_type=self.filter_type, N=N)
 
         elif (self.approx == 'gauss'):
+            # TODO: Chequear estos valores que se le pasan a Gauss, crashea
             self.z, self.p, self.k = aux.gauss_(2*np.pi*self.freqs, aten=self.A, desnorm=self.desnorm, N=N)
         else:
             raise ValueError("Error en el ingreso de la aproximación")

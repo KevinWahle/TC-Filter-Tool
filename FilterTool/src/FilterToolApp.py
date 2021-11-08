@@ -18,6 +18,18 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         super().__init__(*args, **kwargs)
         self.setupUi(self)
 
+        # Constantes
+        self.filterName = [ "lowpass", "highpass", "bandpass", "bandstop", "groupdelay" ]
+        self.approxDisplayName = [ "Butterworth", "Chebycheff I", "Chebycheff II", "Cauer", "Legendre", "Bessel", "Gauss" ]
+        self.approxName =        [ "butter",        "cheby1",       "cheby2",      "ellip", "legendre", "bessel", "gauss" ]
+        self.approxNameLP = self.approxName[:-2]
+        self.approxDisplayNameLP = self.approxDisplayName[:-2]
+        self.approxNameGD = self.approxName[-2:]
+        self.approxDisplayNameGD = self.approxDisplayName[-2:]
+        self.filterImg = [ "res/lowpasstemplate.png", "res/highpasstemplate.png",
+                    "res/bandpasstemplate.png", "res/bandstoptemplate.png", "res/groupdelaytemplate.png" ]
+
+
         # Seteo de visivilidad de widgets
 
         self.onFilterTypeChanged(self.Filtro_B.currentIndex())
@@ -44,7 +56,7 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         self.stagePoles = []
 
 
-        ############
+        ############ EJEMPLO PARA DEBUG
         self.Nombre_T.setText("Filtro")
         self.Filtro_B.setCurrentIndex(0)
         self.Aproximacion_B.setCurrentIndex(0)
@@ -67,9 +79,18 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         self.Group_Delay_L.setVisible(index == 4)
 
         # Cambio de imagenes
-        filterImg = [ "res/lowpasstemplate.png", "res/highpasstemplate.png",
-                    "res/bandpasstemplate.png", "res/bandstoptemplate.png", "res/groupdelaytemplate.png" ]
-        self.Filter_Img.setPixmap(QPixmap(filterImg[self.Filtro_B.currentIndex()]))
+        self.Filter_Img.setPixmap(QPixmap(self.filterImg[self.Filtro_B.currentIndex()]))
+
+        # Cambio de aproximaciones
+        self.Aproximacion_B.clear()
+        if self.filterName[index] == 'groupdelay':
+            self.Aproximacion_B.addItems(self.approxDisplayNameGD)  # Se muestran aproximaciones de GD
+            self.horizontalWidget_3.setVisible(False)      # Oculto textbox de ganancia
+            self.widget.setVisible(False)      # Oculto Slider de denormaliazcion
+        else:
+            self.Aproximacion_B.addItems(self.approxDisplayNameLP)  # Se muestran aproximaciones de LP
+            self.horizontalWidget_3.setVisible(True)        # Muestro textbox de ganancia
+            self.widget.setVisible(True)       # Muestro slider de denormalizacion
 
     def addFilter(self):
         
@@ -81,13 +102,11 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             print("Invalid name")
             return
         
-        filterName = [ "lowpass", "highpass", "bandpass", "bandstop", "groupdelay" ]
         filterIndex = self.Filtro_B.currentIndex()    # Se maneja por indice
-        filterType = filterName[filterIndex]
+        filterType = self.filterName[filterIndex]
 
-        approxName = [ "butter", "bessel", "cheby1", "cheby2", "ellip", "legendre", "gauss"  ]
         aproxIndex = self.Aproximacion_B.currentIndex()         # Se maneja por indice
-        approx = approxName[aproxIndex]
+        approx = self.approxNameLP[aproxIndex]      # Si es aproximacion de modulo
 
         gain = self.Ganancia_T.value()
         aten = [ self.Ap_T.value(), self.Aa_T.value() ]     # [Ap, Aa]
@@ -98,6 +117,7 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             freqs = [ self.Fp_T.value(), self.Fa_T.value() ]    # [Fp, Fa]
         elif filterType == 'groupdelay':
             freqs = self.ft_T.value()       # fgd
+            approx = self.approxNameGD[aproxIndex]      # Es aproximacion de fase
         else:
             freqs = [ [ self.Fpm_T.value(), self.Fpp_T.value() ], [self.Fam_T.value(), self.Fap_T.value()] ]    # [ [Fp-, Fp+], [Fa-, Fa+] ]
         
@@ -150,8 +170,9 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
 
     def removeFilter(self):
-        self.filter.pop(self.Filter_List.currentRow())
-        self.updateFilterList()
+        if self.filter:
+            self.filter.pop(self.Filter_List.currentRow())
+            self.updateFilterList()
 
     def editFilter(self):
         pass
