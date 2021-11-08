@@ -107,11 +107,11 @@ def drawingFilters(filters, ax):   # axes = [ Aten, Fase, Retardo de Grupo, Polo
 
 # Tex plotting de funcion transferencia
 
-def tf2Tex(tf) -> str:
+def tf2Tex(num, den) -> str:
     # print("tf: ", tf)
     # print("num: ", tf.num)
     # print("den: ", tf.den)
-    return "$H(s) = \\frac{" + arrToPol(tf.num) + "}{" + arrToPol(tf.den) + "}$ "
+    return "$H(s) = \\frac{" + arrToPol(num) + "}{" + arrToPol(den) + "}$ "
 
 def arrToPol(arr = [], var = 's'):
 

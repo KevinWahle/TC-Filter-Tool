@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMainWindow
 import numpy as np
+import scipy.signal as ss
 from scipy.signal.filter_design import zpk2tf
 from src.Drawings import drawingFilters, drawTemplate, tf2Tex
 from src.classes.Filter import Filter
@@ -187,7 +188,7 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             
             [ax.clear() for ax in axes]
 
-            if self.template:
+            if len(self.template):
                 [axes[0].add_patch(patch) for patch in self.template]
 
             drawingFilters(filters=self.filter, ax=axes)
@@ -249,16 +250,24 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         z = []  # Ceros seleccionados
         p = []  # Polos seleccionados
 
-        if self.stageZeros:
-           z = self.stageZeros[self.Ceros_B.currentIndex()]
-        if self.stagePoles:
-            p =  self.stagePoles[self.Polos_B.currentIndex()]
-        
-        stageH = zpk2tf(z, p, 1)
 
-        latexH = tf2Tex(stageH)
+        # TODO: CAMBIAR ESTO, ESTA TOMANDO SOLO UNO Y NO TIENE EN CUENTA LOS CONJUGADOS
+        if len(self.stageZeros):
+            z.append(self.stageZeros[self.Ceros_B.currentIndex()])
+        if len(self.stagePoles):
+            p.append(self.stagePoles[self.Polos_B.currentIndex()])
+        
+        print("z: ", z)
+        print("p: ", p)
+
+        num, den = zpk2tf(z, p, 1)
+        
+        print("num: ", num)
+        print("den: ", den)
+
+        latexH = tf2Tex(num, den)
         # print(latexH)
         tfPlot = TeXLabel(text=latexH)
         self.verticalLayout_20.addWidget(tfPlot)    # Agrega el widget al scroll
 
-        self.Stage_List.addItem(self.displayPZ(z) + " + " + self.displayPZ(p))
+        self.Stage_List.addItem("Etapa i")

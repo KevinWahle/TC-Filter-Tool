@@ -154,6 +154,7 @@ def LegenPol(n):
 
   return pol2
 
+# Calcula el polinomio de legendre de orden n
 def LegenPol2(n):
         if n == 0:
             return [0]
