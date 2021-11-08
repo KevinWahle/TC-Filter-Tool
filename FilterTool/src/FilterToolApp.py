@@ -4,7 +4,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMainWindow
 import numpy as np
-from src.Drawings import drawTemplate, drawingFilter
+from scipy.signal.filter_design import zpk2tf
+from src.Drawings import drawingFilters, drawTemplate, tf2Tex
 from src.classes.Filter import Filter
 
 from src.ui.widgets.Main_Window import FilterTool_MainWindow
@@ -158,39 +159,43 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
 
     def updateFilterList(self):
-        self.Filter_List.clear()
-        self.Seleccionado_B.clear()
+        self.Filter_List.clear()    # Listview en diseño
+        self.Seleccionado_B.clear() # ComboBox en etapas
 
         for f in self.filter:
             item = QtWidgets.QListWidgetItem(f.name, self.Filter_List)
             item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
             item.setCheckState(QtCore.Qt.Checked)
-
-        self.Seleccionado_B.addItems([f.name for f in self.filter])
+            
+            self.Seleccionado_B.addItem(f.name)
 
 
     def removeFilter(self):
         if self.filter:
             self.filter.pop(self.Filter_List.currentRow())
             self.updateFilterList()
+            self.drawFilters()
 
     def editFilter(self):
         pass
 
     def drawFilters(self):
 
-        axes = [ self.Atenuacion_Plot.axes, self.Fase_Plot.axes, self.Retardo_Plot.axes, self.PZ_Plot.axes, self.Q_Plot.axes ]
-        
-        # [ax.clear() for ax in axes]
+        if self.filter:
 
-        for i in range(len(self.filter)):
-            filter = self.filter[i]
-            drawingFilter(filter=filter, axes=axes, index=i)
+            axes = [ self.Atenuacion_Plot.axes, self.Fase_Plot.axes, self.Retardo_Plot.axes, self.PZ_Plot.axes, self.Q_Plot.axes ]
+            
+            [ax.clear() for ax in axes]
 
-        self.Atenuacion_Plot.draw()
-        self.Fase_Plot.draw()
-        self.Retardo_Plot.draw()
-        self.Q_Plot.draw()
+            if self.template:
+                [axes[0].add_patch(patch) for patch in self.template]
+
+            drawingFilters(filters=self.filter, ax=axes)
+
+            self.Atenuacion_Plot.draw()
+            self.Fase_Plot.draw()
+            self.Retardo_Plot.draw()
+            self.Q_Plot.draw()
 
     def onFilterItemChanged(self, index):
         pass
@@ -201,10 +206,14 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             self.template = drawTemplate(self.Atenuacion_Plot.axes, self.filter[index], index=index)
             self.Atenuacion_Plot.draw()
         elif len(self.template) > 0:
-            [ tmp.remove() for tmp in self.template ]
+            # [ tmp.remove() for tmp in self.template ]
             self.template = []
             
         self.drawFilters()
+
+
+
+    # Pestaña de etapas
 
     def onStageFilterChanged(self, index):
         
@@ -236,6 +245,20 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
 
     def onStageCreated(self):
-        tfPlot = TeXLabel(text="$T_{f}$")
-        self.verticalLayout_20.addWidget(tfPlot)
-        print(tfPlot)
+
+        z = []  # Ceros seleccionados
+        p = []  # Polos seleccionados
+
+        if self.stageZeros:
+           z = self.stageZeros[self.Ceros_B.currentIndex()]
+        if self.stagePoles:
+            p =  self.stagePoles[self.Polos_B.currentIndex()]
+        
+        stageH = zpk2tf(z, p, 1)
+
+        latexH = tf2Tex(stageH)
+        # print(latexH)
+        tfPlot = TeXLabel(text=latexH)
+        self.verticalLayout_20.addWidget(tfPlot)    # Agrega el widget al scroll
+
+        self.Stage_List.addItem(self.displayPZ(z) + " + " + self.displayPZ(p))

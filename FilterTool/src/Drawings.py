@@ -40,49 +40,29 @@ def drawingFilter(filter, axes, index):    # axes = [ Aten, Fase, Retardo de Gru
         aten = -mag
         freq = w/(2*np.pi)
         # Atenuacion
-        print("Dibujo Atenuacion")
+        # print("Dibujo Atenuacion")
         # axes[0].plot(w, aten, color=color, label=filter.name)            # OJO!!! DIBUJO EN RADIANES
         axes[0].plot(freq, aten, color=color, label=filter.name)
-        axes[0].legend()
-        axes[0].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
-        axes[0].set_ylabel(r'$Atenuación\ [dB]$', fontsize=10)
-        axes[0].set_title('Atenuación', fontsize=15)
-        axes[0].set_xscale('log')
-        axes[0].grid(which='both', zorder=0)
+        
 
         # Fase
-        print("Dibujo fase")
+        # print("Dibujo fase")
         axes[1].plot(freq, fase, color=color, label=filter.name)
-        axes[1].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
-        axes[1].set_ylabel(r'$Fase\ [°]$', fontsize=10)
-        axes[1].set_title('Fase', fontsize=15)
-        axes[1].legend()
-        axes[1].set_xscale('log')
-        axes[1].grid(which='both', zorder=0)
+        
 
         # Retardo de grupo
-        print("Dibujo retardo")
+        # print("Dibujo retardo")
         delay = -np.diff(np.unwrap(fase*np.pi/180))/np.diff(w)     # Calculo del retardo de grupo, en funcion de w
         freqDelay = freq[1:]   # Tiene un valor menos
         delay = delay*1e6
         axes[2].plot(freqDelay, delay, color=color, label=filter.name)    # Pero lo gafico en funcoin de freq
-        axes[2].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
-        axes[2].set_ylabel(r'$Retardo\ [\mu s]$', fontsize=10)
-        axes[2].set_title('Retardo', fontsize=15)
-        axes[2].set_xscale('log')
-        axes[2].grid(which='both', zorder=0)
-        axes[2].legend()
+        
 
         #TODO: Polos y ceros
         zeros, poles = H.zeros, H.poles
 
         axes[3].scatter(np.real(zeros), np.imag(zeros), c=color, marker="o", label=filter.name)
         axes[3].scatter(np.real(poles), np.imag(poles), c=color, marker="x")
-        axes[3].set_xlabel(r'$\sigma$', fontsize=15)
-        axes[3].set_ylabel(r'$jw$', fontsize=15)
-        axes[3].set_title('Gráfico Polos y Ceros')
-        axes[3].grid(which='both', zorder=0)
-        axes[3].legend()
 
         return 0
 
@@ -91,6 +71,75 @@ def drawingFilter(filter, axes, index):    # axes = [ Aten, Fase, Retardo de Gru
         return -1
 
 # Grafica arreglo de filtros en todos los ejes
-def drawFilters(filters, ax):
+def drawingFilters(filters, ax):   # axes = [ Aten, Fase, Retardo de Grupo, Polos y ceros, ¿Q? ]
     for i in range(len(filters)):
         drawingFilter(filters[i], ax, i)
+
+    ax[0].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+    ax[0].set_ylabel(r'$Atenuación\ [dB]$', fontsize=10)
+    ax[0].set_title('Atenuación', fontsize=15)
+    ax[0].set_xscale('log')
+    ax[0].grid(which='both', zorder=0)
+    ax[0].legend()
+
+    ax[1].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+    ax[1].set_ylabel(r'$Fase\ [°]$', fontsize=10)
+    ax[1].set_title('Fase', fontsize=15)
+    ax[1].legend()
+    ax[1].set_xscale('log')
+    ax[1].grid(which='both', zorder=0)
+    
+    ax[2].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+    ax[2].set_ylabel(r'$Retardo\ [\mu s]$', fontsize=10)
+    ax[2].set_title('Retardo', fontsize=15)
+    ax[2].set_xscale('log')
+    ax[2].grid(which='both', zorder=0)
+    ax[2].legend()
+    
+    ax[3].set_xlabel(r'$\sigma$', fontsize=15)
+    ax[3].set_ylabel(r'$j \omega$', fontsize=15)
+    ax[3].set_title('Gráfico Polos y Ceros')
+    ax[3].grid(which='both', zorder=0)
+    ax[3].legend()
+
+
+
+
+# Tex plotting de funcion transferencia
+
+def tf2Tex(tf) -> str:
+    # print("tf: ", tf)
+    # print("num: ", tf.num)
+    # print("den: ", tf.den)
+    return "$H(s) = \\frac{" + arrToPol(tf.num) + "}{" + arrToPol(tf.den) + "}$ "
+
+def arrToPol(arr = [], var = 's'):
+
+    # print('Entro a arrToPol. arr: ', arr)
+
+    pol = ''
+    for i in range(len(arr)):
+        q = len(arr)-i-1
+        if arr[i] != 0:
+            if pol and arr[i] > 0:  # No es el primer elemento y es positivo
+                pol += ' + '
+
+            if abs(arr[i]) != 1 or q<1:
+                base, exp = toBaseExp(arr[i])
+                if (exp < -1 or exp > 3):      # Numeros muy grandes o muy chicos los muestro en notacion cienifica
+                    pol += str(base) + '\\times10^{'+str(exp)+'}\ '
+                else:
+                    pol += "{:.2f}".format(arr[i]) + '\ '
+            elif arr[i] == -1:
+                pol += '-'
+
+            if  q > 1:
+                pol +=  var + '^{' + str(q) + '}'
+            elif q==1:
+                pol += var
+
+    return pol if pol else '0'
+
+def toBaseExp(num):
+    str = "{:.2e}".format(num)
+    return (float(str[:4]), int(str[-3:]))  # Tomo base y exponente del numero

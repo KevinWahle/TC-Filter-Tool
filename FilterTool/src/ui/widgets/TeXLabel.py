@@ -8,6 +8,8 @@ class TeXLabel(QWidget):
     def __init__(self, parent=None, text=''):
         super().__init__(parent)
 
+        self.text = text
+
         # Create widgets
         
         # Get window background color
@@ -38,7 +40,10 @@ class TeXLabel(QWidget):
         # Assign Layout
         self.setLayout(label_layout)
 
+
     def setText(self, text='', size=18):
+        
+        self.text = text
 
         self.fig.suptitle(text,
                 x=0.5, y=0.5,   # Alineado en el centro
@@ -46,7 +51,9 @@ class TeXLabel(QWidget):
                 verticalalignment='center', size=size)
         self.canvas.draw()
 
-
+    # def mousePressEvent(self, event):
+    #     print('mousePressEvent')
+    #     super().mousePressEvent(event)
 
 if __name__ == "__main__":
 

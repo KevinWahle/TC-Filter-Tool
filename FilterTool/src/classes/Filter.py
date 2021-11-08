@@ -20,6 +20,7 @@ class Filter:
         self.z = []
         self.p = []
         self.k = 0
+        self.stage=[]
 
         # self.CalcFilt()
 
@@ -66,7 +67,7 @@ class Filter:
 
         elif (self.approx == 'gauss'):
             # TODO: Chequear estos valores que se le pasan a Gauss, crashea
-            self.z, self.p, self.k = aux.gauss_(2*np.pi*self.freqs, aten=self.A, desnorm=self.desnorm, N=N)
+            self.z, self.p, self.k = aux.gauss_(2*np.pi*self.freqs, retGroup=self.ret, tol=self.tol, N=N)
         else:
             raise ValueError("Error en el ingreso de la aproximación")
         

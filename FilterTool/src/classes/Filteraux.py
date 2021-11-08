@@ -25,7 +25,7 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
     if filter_type == 'highpass':
         w = w[::-1]     # [ wa, wp ]
     elif filter_type == 'bandpass':
-        w = [ w[0][1] - w[0][0], w[1][1] - w[1][0] ]    # [ (wp+ - wp-), (wa+ - wa-) ]
+        w = [ w[0][1] - w[0][0], w[1][1] - w[1][0] ]   # [ (wp+ - wp-), (wa+ - wa-) ]
     elif filter_type == 'bandstop':
         w = [ w[1][1] - w[1][0], w[0][1] - w[0][0] ]   # [ (wa+ - wa-), (wp+ - wp-) ]
 
@@ -158,45 +158,42 @@ def LegenPol2(n):
         if n == 0:
             return [0]
 
-        if n % 2:  # n impar
+        if n % 2:                           # Si n es impar 
             k = (n - 1) // 2
             a0 = 1 / (np.sqrt(2) * (k + 1))
 
             poly = np.poly1d([a0])
-            for i in range(1, k + 1):
-                ai = a0 * (2 * i + 1)
-                new_poly = ai * sp.legendre(i)
-                poly = np.polyadd(poly, new_poly)
-            poly = np.polymul(poly, poly)  # Elevo al cuadrado
+            for i in range(1, k + 1):       # Sumatoria
+                new_term = a0 * (2 * i + 1) * sp.legendre(i)
+                poly = np.polyadd(poly, new_term)
+            poly = np.polymul(poly, poly)   # Elevo al cuadrado
 
-        else:  # n par
+        else:                               # Si n es par
             k = (n - 2) // 2
-            if k % 2:  # k impar
+            if k % 2:                       # Si K es impar
                 a1 = 3 / np.sqrt((k + 1) * (k + 2))
-                poly = np.poly1d(0)
+                poly = np.poly1d(0)         # Creo un np array
 
-                for i in range(1, k + 1):
-                    if i % 2:  # i impar
-                        ai = a1 * (2 * i + 1)/3
-                        new_poly = ai * sp.legendre(i)
-                        poly = np.polyadd(poly, new_poly)
-            else:  # k par
+                for i in range(1, k + 1):   # Sumatoria
+                    if i % 2:               # i impar
+                        new_term = a1 * (2 * i + 1)/3 * sp.legendre(i)
+                        poly = np.polyadd(poly, new_term)
+
+            else:                           # Si K es par
                 a0 = 1 / np.sqrt((k + 1) * (k + 2))
-                poly = np.poly1d(a0)
+                poly = np.poly1d(a0)        # Creamos un numpy poly
 
-                for i in range(1, k + 1):
-                    if not i % 2:  # i par
-                        ai = a0 * (2 * i + 1)
-                        new_poly = ai * sp.legendre(i)
-                        poly = np.polyadd(poly, new_poly)
+                for i in range(1, k + 1):   # Sumatoria
+                    if not i % 2:           # Terminos con i par
+                        new_term = a0 * (2 * i + 1) * sp.legendre(i)
+                        poly = np.polyadd(poly, new_term)
 
             poly = np.polymul(poly, poly)  # Elevo al cuadrado
             poly = np.polymul(poly, np.poly1d([1, 1]))  # Multiplico por (x + 1)
 
-        poly = np.polyint(poly)  # Integro
-        x2 = np.poly1d([2, 0, -1])  # Borde superior
-        x1 = np.poly1d([-1])  # Borde inferior
+        poly = np.polyint(poly)     # Integro
+        x1 = np.poly1d([-1])        # Límite inferior
+        x2 = np.poly1d([2, 0, -1])  # Límite superior
 
-        Ln = np.polysub(np.polyval(poly, x2), np.polyval(poly, x1))
-
-        return Ln        
+        return np.polysub(np.polyval(poly, x2), np.polyval(poly, x1))
+    
