@@ -42,15 +42,21 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
     print("E = ", epsilon)
 
     ord=0
+    # CotaLp = (10**(aten[0]/10)-1)/(epsilon**2)
+    # CotaLa = (10**(aten[1]/10)-1)/(epsilon**2)
+        
     for n in range(max(N[0],1), N[1]+1):
         Lp= np.polyval(LegenPol2(n), (w[0]/wx)**2)            # Pol de Legendre en wp
         La= np.polyval(LegenPol2(n), (w[1]/wx)**2)            # Pol de Legendre en wa
         
         print("Pruebo n=", n)
-        print("Lp= ", Lp, " La= ", La)
+        print("Ap= ", aten[0], "\t ALp=", -10*np.log10(1/(1+epsilon**2*Lp))) 
+        print("Aa= ", aten[1], "\t ALa=", -10*np.log10(1/(1+epsilon**2*La)))
 
-        # if Lp <= np.log10((10**(aten[0]/10)-1)/epsilon**2) and La >= np.log10((10**(aten[1]/10)-1)/epsilon**2):
-        if Lp <= (10**(aten[0]/10)-1)/(epsilon**2) and La >= (10**(aten[1]/10)-1)/(epsilon**2):
+
+        #if Lp <= np.log10((10**(aten[0]/10)-1)/epsilon**2) and La >= np.log10((10**(aten[1]/10)-1)/epsilon**2):
+        #if Lp <= CotaLp and La >= CotaLa:
+        if -10*np.log10(1/(1+epsilon**2*Lp)) <= aten[0] and -10*np.log10(np.sqrt(1/(1+epsilon**2*La))) >= aten[1]:
             ord=n
             break
 
@@ -130,18 +136,8 @@ def transform(z, p, k, wx, w,filter_type):
         z,p,k=ss.lp2bs_zpk(z,p,k,w0,BW)   
     return z,p,k
 
-def Wnorm(wa,wp,tipo):
-    normalizaciones={
-        "lowpass": wa/wp,
-        "highpass": wp/wa,
-        "bandpass": (wa[1]-wa[0])/(wp[1]-wp[0]),
-        "bandstop": (wp[1]-wp[0])/(wa[1]-wa[0]),
-    }
-    return normalizaciones[tipo]
-
 # Calcula el polinomio de legendre de orden n de w**2
 def LegenPol(n):
-#   n=5
   pol1=sp.legendre(n)
   pol2=np.zeros(2*n+1)
 
@@ -197,4 +193,35 @@ def LegenPol2(n):
         x2 = np.poly1d([2, 0, -1])  # Límite superior
 
         return np.polysub(np.polyval(poly, x2), np.polyval(poly, x1))
+
+def Wnorm(wa,wp,tipo):
+    normalizaciones={
+        "lowpass": wa/wp,
+        "highpass": wp/wa,
+        "bandpass": (wa[1]-wa[0])/(wp[1]-wp[0]),
+        "bandstop": (wp[1]-wp[0])/(wa[1]-wa[0]),
+    }
+    return normalizaciones[tipo]
+
+def Emin(approx, freqs, btype, A, N):
+    w = Wnorm(2*np.pi*freqs[0],2*np.pi*freqs[1], btype)
+
+    if approx == "butter" or approx=="ellip":
+        return np.sqrt(10 ** (A[1] / 10) - 1) / (w**N)
+    elif approx == "cheby1":
+        return np.sqrt(10 ** (A[1] / 10) - 1) / np.cosh(N*np.arcosh(w))
+    elif approx == "cheby2":
+        return 1 / (np.sqrt(10 ** (A[0] / 10) - 1))
     
+def Emax(approx, A):
+    if approx=="butter" or approx=="cheby1" or approx=="ellip":
+        return np.sqrt(10 ** (A[0] / 10) - 1)
+    elif approx=="cheby2":
+        return 1 / (np.sqrt(10 ** (A[1] / 10) - 1))
+
+def calc_NQE(approx, freqs, A, btype, wc, qmax, N, desnorm):
+    Emin = Emin(approx, freqs, btype, A, N)
+    if qmax != 0:
+        Emin = max(1/(2*qmax), Emin)
+    E = Emax(approx, A) - desnorm*(Emax(approx, A)-Emin)
+    fc = freqs[0] / (E ** (N))

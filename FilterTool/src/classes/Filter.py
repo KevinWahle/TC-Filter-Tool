@@ -4,7 +4,7 @@ from scipy.signal.filter_design import zpk2tf
 import src.classes.Filteraux as aux
 
 class Filter:
-    def __init__(self, name, filter_type, approx, gain, freqs, aten=[0,0], N=None, qmax=None, 
+    def __init__(self, name, filter_type, approx, freqs, gain=0, aten=[0,0], N=None, qmax=None, 
                 retardo=0, desnorm=0.5, tol = 0.1):
         self.name = name
         self.filter_type = filter_type      # ‘lowpass’, ‘highpass’, ‘bandpass’, ‘bandstop’
@@ -66,7 +66,7 @@ class Filter:
             self.z, self.p, self.k = aux.legendre_(2*np.pi*self.freqs, aten=self.A, desnorm=self.desnorm, filter_type=self.filter_type, N=N)
 
         elif (self.approx == 'gauss'):
-            # TODO: Chequear estos valores que se le pasan a Gauss, crashea
+            # TODO: Chequear estos valores que se le pasan a Gauss, crasheaba
             self.z, self.p, self.k = aux.gauss_(2*np.pi*self.freqs, retGroup=self.ret, tol=self.tol, N=N)
         else:
             raise ValueError("Error en el ingreso de la aproximación")
@@ -80,8 +80,8 @@ class Filter:
     def getTF(self):
         try:
             a, b = zpk2tf(self.z, self.p, self.k)
+            a = a * 10**(self.gain/20)
             return ss.TransferFunction(a, b)
         except Exception as e:
             print("Error getting TF: ", e)
             return None
-        
