@@ -197,13 +197,15 @@ def LegenPol2(n):
         return np.polysub(np.polyval(poly, x2), np.polyval(poly, x1))
 
 def Wnorm(wa,wp,tipo):
-    normalizaciones={
-        "lowpass": wa/wp,
-        "highpass": wp/wa,
-        "bandpass": (wa[1]-wa[0])/(wp[1]-wp[0]),
-        "bandstop": (wp[1]-wp[0])/(wa[1]-wa[0]),
-    }
-    return normalizaciones[tipo]
+    print("TIPO:", tipo)
+    if tipo == 'lowpass':
+        return wa/wp
+    elif tipo == 'highpass':
+        return wp/wa
+    elif tipo == 'bandpass':
+        return(wa[1]-wa[0])/(wp[1]-wp[0])
+    elif tipo == "bandstop":
+        return (wp[1]-wp[0])/(wa[1]-wa[0])
 
 def Emin(approx, freqs, btype, A, N):
     w = Wnorm(2*np.pi*freqs[0],2*np.pi*freqs[1], btype)
@@ -221,10 +223,12 @@ def Emax(approx, A):
     elif approx=="cheby2":
         return 1 / (np.sqrt(10 ** (A[1] / 10) - 1))
 
-def calc_NQE(approx, freqs, A, btype, wc, qmax, N, desnorm):
-    #Emin = Emin(approx, freqs, btype, A, N)
-    Emin=0
+def gradNorm(approx, freqs, A, btype, wc, qmax, N, desnorm):
+    Emin_ = Emin(approx, freqs, btype, A, N)
     if qmax != 0:
-        Emin = max(1/(2*qmax), Emin)
-    E = Emax(approx, A) - desnorm*(Emax(approx, A)-Emin)
-    fc = freqs[0] / (E ** (N))
+        Emin_ = max(1/(2*qmax), Emin_)
+    E = Emax(approx, A)*(1 - desnorm)-Emin_
+    wc_=2*np.pi*freqs[0] / (E ** (1/N)) # Wc*
+    print("Em=", Emin_, "\t EM=", Emax, "\t E=", E) 
+    print("WC*=", wc_)
+    return wc_ 

@@ -29,7 +29,8 @@ class Filter:
 
         if (self.approx == 'butter'):
             ord, wn = ss.buttord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
-            
+            wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
+
             if ord in range(self.N[0], self.N[1]):
                 self.z, self.p, self.k = ss.butter(ord, wn, btype=self.filter_type, analog=True, output='zpk')
             else:
@@ -37,7 +38,8 @@ class Filter:
 
         elif (self.approx == 'cheby1'):
             ord, wn = ss.cheb1ord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
-            
+            wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
+
             if ord in range(self.N[0], self.N[1]):
                 self.z, self.p, self.k = ss.cheby1(ord, self.A[0], wn, btype=self.filter_type, analog=True, output='zpk')
             else:
@@ -45,7 +47,8 @@ class Filter:
 
         elif (self.approx == 'cheby2'):
             ord, wn = ss.cheb2ord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
-            
+            wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
+
             if ord in range(self.N[0], self.N[1]):
                 self.z, self.p, self.k = ss.cheby2(ord, self.A[1], wn, btype=self.filter_type, analog=True, output='zpk')
             else:
@@ -53,7 +56,8 @@ class Filter:
 
         elif (self.approx == 'ellip'):
             ord, wn = ss.ellipord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
-            
+            wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
+
             if ord in range(self.N[0], self.N[1]):
                 self.z, self.p, self.k = ss.ellip(ord, self.A[0], self.A[1], wn, btype=self.filter_type, analog=True, output='zpk')
             else:
