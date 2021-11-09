@@ -46,8 +46,10 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
     # CotaLa = (10**(aten[1]/10)-1)/(epsilon**2)
         
     for n in range(max(N[0],1), N[1]+1):
-        Lp= np.polyval(LegenPol2(n), (w[0]/wx)**2)            # Pol de Legendre en wp
-        La= np.polyval(LegenPol2(n), (w[1]/wx)**2)            # Pol de Legendre en wa
+        Lp= np.polyval(LegenPol2(n), (w[0]/wx))            # Pol de Legendre en wp
+        La= np.polyval(LegenPol2(n), (w[1]/wx))            # Pol de Legendre en wa
+        # Lp= np.polyval(LegenPol2(n), (w[0]/wx)**2)            # Pol de Legendre en wp
+        # La= np.polyval(LegenPol2(n), (w[1]/wx)**2)            # Pol de Legendre en wa
         
         print("Pruebo n=", n)
         print("Ap= ", aten[0], "\t ALp=", -10*np.log10(1/(1+epsilon**2*Lp))) 
@@ -220,7 +222,8 @@ def Emax(approx, A):
         return 1 / (np.sqrt(10 ** (A[1] / 10) - 1))
 
 def calc_NQE(approx, freqs, A, btype, wc, qmax, N, desnorm):
-    Emin = Emin(approx, freqs, btype, A, N)
+    #Emin = Emin(approx, freqs, btype, A, N)
+    Emin=0
     if qmax != 0:
         Emin = max(1/(2*qmax), Emin)
     E = Emax(approx, A) - desnorm*(Emax(approx, A)-Emin)
