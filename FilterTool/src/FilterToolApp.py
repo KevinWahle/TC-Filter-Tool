@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMainWindow
 import numpy as np
 import scipy.signal as ss
+import scipy.special as sp
 from scipy.signal.filter_design import zpk2tf
 from src.Drawings import drawingFilters, drawTemplate, tf2Tex
 from src.classes.Filter import Filter
@@ -41,7 +42,7 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         #Diseño
         self.Plus_Btn.clicked.connect(self.addFilter)
         self.Minus_Btn.clicked.connect(self.removeFilter)
-        self.Edit_Btn.clicked.connect(self.editFilter)
+        # self.Edit_Btn.clicked.connect(self.editFilter)
         self.Filtro_B.currentIndexChanged.connect(self.onFilterTypeChanged)
         self.Plantilla_Box.stateChanged.connect(self.onTemplateBtnClick)
 
@@ -184,7 +185,7 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
         if self.filter:
 
-            axes = [ self.Atenuacion_Plot.axes, self.Fase_Plot.axes, self.Retardo_Plot.axes, self.PZ_Plot.axes, self.Q_Plot.axes ]
+            axes = [ self.Atenuacion_Plot.axes, self.Fase_Plot.axes, self.Retardo_Plot.axes, self.PZ_Plot.axes ]
             
             [ax.clear() for ax in axes]
 
@@ -196,7 +197,7 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             self.Atenuacion_Plot.draw()
             self.Fase_Plot.draw()
             self.Retardo_Plot.draw()
-            self.Q_Plot.draw()
+            # self.Q_Plot.draw()
 
     def onFilterItemChanged(self, index):
         pass
@@ -218,16 +219,18 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
     def onStageFilterChanged(self, index):
         
-        filter = self.filter[index]
+        if (len(self.filter)):
 
-        self.Polos_B.clear()
-        self.Ceros_B.clear()
+            filter = self.filter[index]
 
-        self.stageZeros = filter.z
-        self.stagePoles = filter.p
+            self.Polos_B.clear()
+            self.Ceros_B.clear()
 
-        self.Polos_B.addItems([self.displayPZ(p) for p in filter.p if p.imag >= 0])     # Muestro polos y ceros, una sola vez si es conjugado
-        self.Ceros_B.addItems([self.displayPZ(z) for z in filter.z if z.imag >= 0])
+            self.stageZeros = filter.z
+            self.stagePoles = filter.p
+
+            self.Polos_B.addItems([self.displayPZ(p) for p in filter.p if p.imag >= 0])     # Muestro polos y ceros, una sola vez si es conjugado
+            self.Ceros_B.addItems([self.displayPZ(z) for z in filter.z if z.imag >= 0])
 
     def displayPZ(self, complex) -> str:
 

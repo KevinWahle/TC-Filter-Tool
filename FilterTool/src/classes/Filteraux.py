@@ -146,9 +146,6 @@ def LegenPol(n):
   for i in range(0,n+1,1):
     pol2[i*2]=pol1[i]
   pol2=pol2[::-1]
-  
-  print("Legendre(",n,"): ", np.array(pol1))
-  print("LegenPol(",n,"): ", pol2)
 
   return pol2
 
@@ -224,11 +221,61 @@ def Emax(approx, A):
         return 1 / (np.sqrt(10 ** (A[1] / 10) - 1))
 
 def gradNorm(approx, freqs, A, btype, wc, qmax, N, desnorm):
-    Emin_ = Emin(approx, freqs, btype, A, N)
-    if qmax != 0:
-        Emin_ = max(1/(2*qmax), Emin_)
-    E = Emax(approx, A)*(1 - desnorm)-Emin_
-    wc_=2*np.pi*freqs[0] / (E ** (1/N)) # Wc*
-    print("Em=", Emin_, "\t EM=", Emax, "\t E=", E) 
-    print("WC*=", wc_)
+    # wx = 2*np.pi*freqs[0]*(freqs[1]/freqs[0])**desnorm                 # Calculamos la frecuencia deseada
+    # Ax = A[0]+(A[1]-A[0])*desnorm         # Calculamos al atenuación en la frecuencia deseada  
+    # print('wx: ', wx, 'Ax: ', Ax)
+    
+    if approx == "butter":
+        wc_min = 2* np.pi * freqs[0] * (10**(A[0]/10) -  1)**(-1/(2*N))
+        wc_max = 2* np.pi * freqs[1] * (10**(A[1]/10) -  1)**(-1/(2*N))
+        wc_ = wc_min + desnorm* (wc_max-wc_min)
+
+    elif approx == "cheby1":
+        # fc min lo da chebyord
+        wp = complex(2*np.pi*freqs[0], 0)
+        wa = complex(2*np.pi*freqs[1], 0)
+
+        TnP= np.cos(N*np.arccos(wp/wc))
+        TnA= np.cos(N*np.arccos(wa))  # chebyt_eval(wa)
+
+        print ("TnP: ", TnP)
+        print ("TnA: ", TnA)
+
+        TnP = np.real(TnP)
+        TnA = np.real(TnA)
+
+        #Emin = np.sqrt((10**(A[0]/10)-1)/TnP)
+        Emax = np.sqrt((10**(A[1]/10)-1)/TnA)
+        den=np.polyadd(np.poly1d(1),Emax**2*np.array(sp.chebyt(N)))
+        #E = Emin + desnorm * (Emax-Emin)
+        H=ss.TransferFunction(1,den)
+        mag,_=ss.bode(1,den)
+        
+
+    else:
+        wx = 2*np.pi*freqs[0]*(freqs[1]/freqs[0])**desnorm                 # Calculamos la frecuencia deseada
+        Ax = A[0]+(A[1]-A[0])*desnorm         # Calculamos al atenuación en la frecuencia deseada  
+        print('wx: ', wx, 'Ax: ', Ax)
+        wc_ = wx / ((10**(Ax/10)-1)**(1/(2*N)))
+        
+
+
+
+    # elif approx == "cheby1":
+    #     wc_min = 
+    #     wc_mac = 
+
+
+    # wc_ = wx / ((10**(Ax/10)-1)**(1/(2*N)))
+    
+    # Emin_ = Emin(approx, freqs, btype, A, N)
+    # if qmax != 0:
+    #     Emin_ = max(1/(2*qmax), Emin_)
+    # E = Emax(approx, A)*(1 - desnorm)-Emin_
+
+    # print (freqs, E, N)
+
+    # wc_=2*np.pi*freqs[0] / (E ** (1/N)) # Wc*
+    # print("Em=", Emin_, "\t EM=", Emax(approx, A), "\t E=", E) 
+    # print("WC*=", wc_)
     return wc_ 

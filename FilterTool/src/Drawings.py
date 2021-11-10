@@ -71,7 +71,7 @@ def drawingFilter(filter, axes, index):    # axes = [ Aten, Fase, Retardo de Gru
         return -1
 
 # Grafica arreglo de filtros en todos los ejes
-def drawingFilters(filters, ax):   # axes = [ Aten, Fase, Retardo de Grupo, Polos y ceros, ¿Q? ]
+def drawingFilters(filters, ax):   # axes = [ Aten, Fase, Retardo de Grupo, Polos y ceros ]
     for i in range(len(filters)):
         drawingFilter(filters[i], ax, i)
 
