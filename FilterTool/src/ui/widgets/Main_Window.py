@@ -1062,7 +1062,7 @@ class FilterTool_MainWindow(object):
         self.TF_Modulo = PlotWidget(self.tab_2)
         self.TF_Modulo.setObjectName("TF_Modulo")
         self.verticalLayout_8.addWidget(self.TF_Modulo)
-        self.TF_FASE = QtWidgets.QWidget(self.tab_2)
+        self.TF_FASE = PlotWidget(self.tab_2)
         self.TF_FASE.setObjectName("TF_FASE")
         self.verticalLayout_8.addWidget(self.TF_FASE)
         self.horizontalLayout_3.addLayout(self.verticalLayout_8)

@@ -6,7 +6,9 @@ import math as mt
 def bessel_(wrg, retGroup, tol=0.1, N=[0,15]):
     tau= retGroup*1e-6
     success=0
+    nOK=0
     for n in range(max(N[0],1), N[1]+1):
+        nOK=n
         bn,an = ss.bessel(n, 1/tau, btype="lowpass", analog=True, output='ba', norm='delay')
         w, h = ss.freqs(bn, an, worN=np.linspace(wrg*0.99, wrg*1.01, num=3))
         retGroup_ = -np.diff(np.unwrap(np.angle(h)))/np.diff(w) # Calculo del retardo de grupo en wrg
@@ -14,12 +16,10 @@ def bessel_(wrg, retGroup, tol=0.1, N=[0,15]):
             success=1
             break
 
-    if success==1:
-        z,p,k = ss.tf2zpk(bn,an)
-        # p=p[p.imag<=0]  # Elimina polos del semiplano derecho
-    else: 
-        z=p=k=0
-    return z,p,k 
+    z,p,k = ss.tf2zpk(bn,an)
+    # p=p[p.real<=0]  # Elimina polos del semiplano derecho
+
+    return z,p,k, nOK 
 
 def calcW(w,filter_type):
     if filter_type == 'highpass':
@@ -70,15 +70,11 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
             ord=n
             break
 
-    if ord != 0:
-        a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*LegenPol2(n))
-        z,p,k=ss.tf2zpk(a,b)
-        p=p[p.real<=0]  # Elimina polos del semiplano derecho 
-        #return z,p,k
-        return transform(z,p,k, wx, w, filter_type)
-    else:
-        print("Algo malio sal")
-        return 0,0,0
+    a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*LegenPol2(n))
+    z,p,k=ss.tf2zpk(a,b)
+    p=p[p.real<=0]  # Elimina polos del semiplano derecho 
+    return transform(z,p,k, wx, w, filter_type), ord 
+
 
 #TODO: gauss Módulo
 #def gauss_(w, aten, desnorm, filter_type, N=[0,15]):
@@ -104,25 +100,21 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
 
 def gauss_(wrg, retGroup, tol=0.1, N=[0,15]):
     tau= retGroup*1e-6
-    success=0
     num=den=[]
-
-    for n in range(max(N[0],1), N[1]+1):
+    nOK = 0
+    # for n in range(max(N[0],1), N[1]+1):
+    for n in range(max(N[0],1), 10):
+        nOK = n
         num=[1]; den= np.polyadd(np.poly1d([1]), gaussPol(n))
+        print(den)
         w,h = ss.freqs(num, den, worN=np.linspace(wrg*0.99, wrg*1.01, num=3))
         retGroup_ = -np.diff(np.unwrap(np.angle(h)))/np.diff(w) # Calculo del retardo de grupo en wrg
         if retGroup_[1]>= tau*(1-tol):
-            success=1
             break
 
-    if success==1:
-        z,p,k = ss.tf2zpk(num,den)
-        p=p[p.imag<=0]  # Elimina polos del semiplano derecho
-        return z,p,k
-        
-    else: 
-        return 0,0,0
-
+    z,p,k = ss.tf2zpk(num,den)
+    p=p[p.real<=0]  # Elimina polos del semiplano derecho
+    return z, p, k, nOK
 
 def gaussPol(n):    
     # Genera un arreglo con los coeficientes del Pol de Gauss.
@@ -282,11 +274,14 @@ def Qchecker(p, qmax):
     q_arr=[]; q_sys=0
 
     for pole in p:
-        q = abs(abs(pole) / (2 * pole.real))
+        q = abs(abs(pole) / (2 * pole.real))    # Fórmula de Q
         q_arr.append(q)
         q_sys = np.max(q_arr)
 
-    if q_sys >= qmax:
-        print("!Q EXCEDIDO! Qsistema = ", qsys, "> Qmax")
-    else:
-        print("Q EN RANGO: Qsistema = ", qsys, "< Qmax") 
+    if qmax>0:
+        if q_sys >= qmax :
+            print("!Q EXCEDIDO! Qsistema = ", q_sys, "> Qmax")
+            return False
+        else:
+            print("Q EN RANGO: Qsistema = ", q_sys, "< Qmax") 
+            return True

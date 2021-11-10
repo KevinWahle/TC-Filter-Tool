@@ -4,10 +4,11 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QMainWindow
 import numpy as np
+from numpy.core.defchararray import find
 import scipy.signal as ss
 import scipy.special as sp
 from scipy.signal.filter_design import zpk2tf
-from src.Drawings import drawingFilters, drawTemplate, tf2Tex
+from src.Drawings import drawPZ, drawingFilters, drawTemplate, tf2Tex
 from src.classes.Filter import Filter
 
 from src.ui.widgets.Main_Window import FilterTool_MainWindow
@@ -49,7 +50,9 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         # Etapas
         self.Seleccionado_B.currentIndexChanged.connect(self.onStageFilterChanged)
         self.Plus_Btn_5.clicked.connect(self.onStageCreated)
-
+        self.Minus_Btn_5.clicked.connect(self.onStageRemoved)
+        self.Stage_List.itemChanged.connect(self.onStageItemChanged)
+        self.Seleccionadas_RB.toggled.connect(self.drawStages)
         # variables y arreglos
 
         self.filter = []
@@ -221,13 +224,24 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
         self.Polos_B.clear()
         self.Ceros_B.clear()
-        
+        self.stages = []
+        self.stageZeros = []
+        self.stagepoles = []
+        self.Stage_List.clear()
+        self.PZ_Plot_2.axes.clear()
+        for i in reversed(range(self.verticalLayout_20.count())):   # Elimina las transferencias de la etapa
+            self.verticalLayout_20.itemAt(i).widget().deleteLater()
+
         if (len(self.filter)):
 
             filter = self.filter[index]
 
+            drawPZ(filter=filter, ax=self.PZ_Plot_2.axes)
+            self.PZ_Plot_2.draw()
+
             self.stageZeros = []      # [ z1, z2, z3]
             self.stagePoles = []
+            self.gain = filter.k
 
             filterz = np.copy(filter.z)  # Para no modificar el original
             filterp = np.copy(filter.p)
@@ -287,24 +301,29 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
     def displayPZ(self, complex) -> str:
 
-
         complex = complex if not isinstance(complex, np.ndarray) else complex[0]
 
         # print(complex)
 
         real = complex.real
         imag = complex.imag
-        f = np.sqrt(real**2 + imag**2)/(2*np.pi)
+        w0 = abs(complex)
+        # f = np.sqrt(real**2 + imag**2)/(2*np.pi)
+        f = w0/(2*np.pi)
         
         if (imag == 0):
-            return "n = 1\tf0 = " + str(f)
+            return "n = 1\tf0 = " + self.formatedNum(f)
         elif (real == 0):
-            return "n = 2\tf0 = " + str(f) + "\tQ = ∞"
+            return "n = 2\tf0 = " + self.formatedNum(f) + "\tQ = ∞"
         
-        xi = -np.cos(np.angle(complex))
-        Q = 1/(2*xi)
-        return "n = 2\tf0 = " + str(f) +"\tQ = " + str(Q)
+        # xi = -np.cos(np.angle(complex))
+        # Q = 1/(2*xi)
+        Q = abs(w0/(2*real))
+        
+        return "n = 2\tf0 = " + self.formatedNum(f) +"\tQ = " + self.formatedNum(Q)
 
+    def formatedNum(self, num) -> str:
+        return "{0:.2f}".format(num)
 
     def onStageCreated(self):
 
@@ -312,17 +331,32 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         p = []  # Polos seleccionados
 
 
-        # TODO: CAMBIAR ESTO, ESTA TOMANDO SOLO UNO Y NO TIENE EN CUENTA LOS CONJUGADOS
         if len(self.stageZeros):
-            z.append(self.stageZeros[self.Ceros_B.currentIndex()])
+            z = [ self.stageZeros[self.Ceros_B.currentIndex()] ]
         if len(self.stagePoles):
-            p.append(self.stagePoles[self.Polos_B.currentIndex()])
+            p = self.stagePoles[self.Polos_B.currentIndex()]
         
         print("z: ", z)
         print("p: ", p)
 
-        num, den = zpk2tf(z, p, 1)
+        # num, den = zpk2tf(z, p, 1)
+       
+        # zpg = ss.ZerosPolesGain(z, p, self.findK(z, p))
+        zpg = ss.ZerosPolesGain(z, p, 1)
+        H = ss.TransferFunction(zpg)
         
+        a, b = ss.normalize(H.num, H.den)
+
+        print("num_norm: ", a)
+        print("den_norm: ", b)
+
+        H = ss.TransferFunction(a/a[-1], b/b[-1])       # H con ganancia 1
+
+        self.stages.append([H, True])   # [ H, visibilidad]
+
+        num = H.num
+        den = H.den
+
         print("num: ", num)
         print("den: ", den)
 
@@ -331,4 +365,101 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         tfPlot = TeXLabel(text=latexH)
         self.verticalLayout_20.addWidget(tfPlot)    # Agrega el widget al scroll
 
-        self.Stage_List.addItem("Etapa i")
+        name = "Etapa " + str(len(self.stages))     # Etapa i
+
+        item = QtWidgets.QListWidgetItem(name, self.Stage_List)
+        item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
+        item.setCheckState(QtCore.Qt.Checked)
+
+        # self.Stage_List.addItem(item)
+
+        self.drawStages()
+
+
+    def onStageRemoved(self):
+        
+        if (len(self.stages)):
+            index = self.Stage_List.currentRow()
+            self.stages.pop(index)
+            self.Stage_List.takeItem(index)
+            self.verticalLayout_20.itemAt(index).widget().deleteLater()
+
+        self.drawStages()
+
+    def onStageItemChanged(self, item):
+        if (len(self.stages)):
+            index = self.Stage_List.row(item)
+            self.stages[index][1] = item.checkState() == QtCore.Qt.Checked
+            
+        self.drawStages()
+
+    def drawStages(self):
+        self.TF_Modulo.axes.clear()
+        self.TF_FASE.axes.clear()
+        self.drawHs(axMod = self.TF_Modulo.axes, axFase = self.TF_FASE.axes, H = np.array(self.stages)[:,0],
+                    visibilidad = np.array(self.stages)[:,1], mode = self.Seleccionadas_RB.isChecked())
+        self.TF_Modulo.draw()
+        self.TF_FASE.draw()
+
+
+    def drawHs(self, axMod, axFase, H, visibilidad, mode=0):
+        # 0 = "Total"; 1 = "Individual"
+        
+        if mode == 1:                           #Grafico todas por separado
+            for i in range(len(H)):
+                if visibilidad[i] == True:
+                    color = 'C' + str(i)
+                    w, mag, fase = ss.bode(H[i], w=np.logspace(-1, 7, num=14000))
+                    aten = -mag 
+                    freq = w/(2*np.pi)
+
+                    axMod.plot(freq, aten, color=color)
+                    axFase.plot(freq, fase, color=color)
+        
+        if mode == 0:                           #Grafico la final
+            num=[1]; den=[1]
+            
+            for i in range(len(H)):
+                num = np.polymul(num, H[i].num)
+                den = np.polymul(den, H[i].den)
+
+            Hfinal= ss.TransferFunction(num,den)    
+            w, mag, fase = ss.bode(Hfinal, w=np.logspace(-1, 7, num=14000))
+            aten = -mag 
+            freq = w/(2*np.pi)
+
+            axMod.plot(freq, aten, color="b")
+            axFase.plot(freq, fase, color="b")
+
+        axMod.set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+        axMod.set_ylabel(r'$Atenuación\ [dB]$', fontsize=10)
+        axMod.set_title('Atenuación', fontsize=15)
+        axMod.set_xscale('log')
+        axMod.grid(which='both', zorder=0)
+
+        axFase.set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+        axFase.set_ylabel(r'$Fase\ [°]$', fontsize=10)
+        axFase.set_title('Fase', fontsize=15)
+        axFase.set_xscale('log')
+        axFase.grid(which='both', zorder=0)
+
+    # def findK(self, Zeros,Poles):
+    #     den=num=1
+
+    #     isArr = True if isinstance(z, list) else False
+
+    #     for z in Zeros:
+    #         if len(z)==2:
+    #             num=num*z[1]
+    #             num=num*z[0]
+    #         elif len(z)==1:
+    #             num=num*z
+
+    #     for p in Poles:
+    #         if len(p)==2:
+    #             den=den*p[1]
+    #             den=den*p[0]
+    #         elif len(p)==1:
+    #             den=den*p
+
+    #     return num/den

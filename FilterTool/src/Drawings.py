@@ -75,7 +75,10 @@ def drawingFilter(filter, axes, index):    # axes = [ Aten, Fase, Retardo de Gru
 # Grafica arreglo de filtros en todos los ejes
 def drawingFilters(filters, ax):   # axes = [ Aten, Fase, Retardo de Grupo, Polos y ceros ]
     for i in range(len(filters)):
-        drawingFilter(filters[i], ax, i)
+        if filters[i].visible == True:
+            drawingFilter(filters[i], ax, i)
+        else:
+            pass
 
     ax[0].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
     ax[0].set_ylabel(r'$Atenuación\ [dB]$', fontsize=10)
@@ -104,6 +107,17 @@ def drawingFilters(filters, ax):   # axes = [ Aten, Fase, Retardo de Grupo, Polo
     ax[3].grid(which='both', zorder=0)
     ax[3].legend()
 
+def drawPZ(filter, ax):
+    H = filter.getTF(); zeros, poles = H.zeros, H.poles
+
+    ax.scatter(np.real(zeros), np.imag(zeros), c='b', marker="o", label=filter.name)
+    ax.scatter(np.real(poles), np.imag(poles), c="r", marker="x")
+
+    ax.set_xlabel(r'$\sigma$', fontsize=15)
+    ax.set_ylabel(r'$j \omega$', fontsize=15)
+    ax.set_title('Gráfico Polos y Ceros')
+    ax.grid(which='both', zorder=0)
+    ax.legend()
 
 
 
