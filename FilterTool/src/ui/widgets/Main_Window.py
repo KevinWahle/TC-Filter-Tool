@@ -1091,7 +1091,7 @@ class FilterTool_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
-        self.tabWidget_2.setCurrentIndex(2)
+        self.tabWidget_2.setCurrentIndex(0)
         self.Slider.valueChanged['int'].connect(self.label_5.setNum)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 

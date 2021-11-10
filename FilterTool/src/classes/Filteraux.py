@@ -21,20 +21,29 @@ def bessel_(wrg, retGroup, tol=0.1, N=[0,15]):
         z=p=k=0
     return z,p,k 
 
-def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
+def calcW(w,filter_type):
     if filter_type == 'highpass':
-        w = w[::-1]     # [ wa, wp ]
+        # w = w[::-1]     # [ wa, wp ]
+        w = [ 1/w[0], 1/w[1] ]
     elif filter_type == 'bandpass':
         w = [ w[0][1] - w[0][0], w[1][1] - w[1][0] ]   # [ (wp+ - wp-), (wa+ - wa-) ]
     elif filter_type == 'bandstop':
         w = [ w[1][1] - w[1][0], w[0][1] - w[0][0] ]   # [ (wa+ - wa-), (wp+ - wp-) ]
+    return w
+
+def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
+    w = calcW(w=w, filter_type=filter_type)
 
     print("Entro a Legendre.")
     print("w= ", w)
     print("aten= ", aten)
 
-    wx = w[0]*(w[1]/w[0])**desnorm                 # Calculamos la frecuencia deseada
-    Ax = aten[0]+(aten[1]-aten[0])*desnorm         # Calculamos al atenuación en la frecuencia deseada
+    #wx = w[0]*(w[1]/w[0])**desnorm                 # Calculamos la frecuencia deseada
+    #Ax = aten[0]+(aten[1]-aten[0])*desnorm         # Calculamos al atenuación en la frecuencia deseada
+    
+    wx = w[0]
+    Ax = aten[0]
+
     epsilon= np.sqrt(10**(Ax/10)-1)                # Calculamos el epsilon para la frec deseada
     
     print("wx = ", wx)
@@ -48,13 +57,12 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
     for n in range(max(N[0],1), N[1]+1):
         Lp= np.polyval(LegenPol2(n), (w[0]/wx))            # Pol de Legendre en wp
         La= np.polyval(LegenPol2(n), (w[1]/wx))            # Pol de Legendre en wa
-        # Lp= np.polyval(LegenPol2(n), (w[0]/wx)**2)            # Pol de Legendre en wp
-        # La= np.polyval(LegenPol2(n), (w[1]/wx)**2)            # Pol de Legendre en wa
         
         print("Pruebo n=", n)
         print("Ap= ", aten[0], "\t ALp=", -10*np.log10(1/(1+epsilon**2*Lp))) 
         print("Aa= ", aten[1], "\t ALa=", -10*np.log10(1/(1+epsilon**2*La)))
-
+        print("Lp= ", Lp)
+        print("La= ", La)
 
         #if Lp <= np.log10((10**(aten[0]/10)-1)/epsilon**2) and La >= np.log10((10**(aten[1]/10)-1)/epsilon**2):
         #if Lp <= CotaLp and La >= CotaLa:
@@ -166,23 +174,38 @@ def LegenPol2(n):
 
         else:                               # Si n es par
             k = (n - 2) // 2
-            if k % 2:                       # Si K es impar
-                a1 = 3 / np.sqrt((k + 1) * (k + 2))
-                poly = np.poly1d(0)         # Creo un np array
+            b0 = 1 / np.sqrt((k + 1) * (k + 2))
+            poly = np.poly1d([b0 if (k % 2) == 0 else 0])
 
-                for i in range(1, k + 1):   # Sumatoria
-                    if i % 2:               # i impar
-                        new_term = a1 * (2 * i + 1)/3 * sp.legendre(i)
-                        poly = np.polyadd(poly, new_term)
+            for i in range(1, k + 1):
+                if ((k % 2) == 1 and (i % 2) == 0) or ((k % 2) == 0 and (i % 2) == 1):
+                    continue
+                bi = b0 * (2 * i + 1)
+                new_poly = bi * sp.legendre(i)
+                poly = np.polyadd(poly, new_poly)
 
-            else:                           # Si K es par
-                a0 = 1 / np.sqrt((k + 1) * (k + 2))
-                poly = np.poly1d(a0)        # Creamos un numpy poly
+            # poly = np.polymul(poly, poly)
+            # poly = np.polymul(poly, np.poly1d([1, 1]))
 
-                for i in range(1, k + 1):   # Sumatoria
-                    if not i % 2:           # Terminos con i par
-                        new_term = a0 * (2 * i + 1) * sp.legendre(i)
-                        poly = np.polyadd(poly, new_term)
+            
+            # k = (n - 2) // 2
+            # if k % 2:                       # Si K es impar
+            #     a1 = 3 / np.sqrt((k + 1) * (k + 2))
+            #     poly = np.poly1d(0)         # Creo un np array
+
+            #     for i in range(1, k + 1):   # Sumatoria
+            #         if i % 2:               # i impar
+            #             new_term = a1 * (2 * i + 1)/3 * sp.legendre(i)
+            #             poly = np.polyadd(poly, new_term)
+
+            # else:                           # Si K es impar
+            #     a0 = 1 / np.sqrt((k + 1) * (k + 2))
+            #     poly = np.poly1d(a0)        # Creamos un numpy poly
+
+            #     for i in range(1, k + 1):   # Sumatoria
+            #         if not i % 2:           # Terminos con i par
+            #             new_term = a0 * (2 * i + 1) * sp.legendre(i)
+            #             poly = np.polyadd(poly, new_term)
 
             poly = np.polymul(poly, poly)  # Elevo al cuadrado
             poly = np.polymul(poly, np.poly1d([1, 1]))  # Multiplico por (x + 1)
@@ -193,89 +216,77 @@ def LegenPol2(n):
 
         return np.polysub(np.polyval(poly, x2), np.polyval(poly, x1))
 
-def Wnorm(wa,wp,tipo):
-    print("TIPO:", tipo)
-    if tipo == 'lowpass':
-        return wa/wp
-    elif tipo == 'highpass':
-        return wp/wa
-    elif tipo == 'bandpass':
-        return(wa[1]-wa[0])/(wp[1]-wp[0])
-    elif tipo == "bandstop":
-        return (wp[1]-wp[0])/(wa[1]-wa[0])
+# def Wnorm(wa,wp,tipo):
+#     print("TIPO:", tipo)
+#     if tipo == 'lowpass':
+#         return wa/wp
+#     elif tipo == 'highpass':
+#         return wp/wa
+#     elif tipo == 'bandpass':
+#         return(wa[1]-wa[0])/(wp[1]-wp[0])
+#     elif tipo == "bandstop":
+#         return (wp[1]-wp[0])/(wa[1]-wa[0])
 
-def Emin(approx, freqs, btype, A, N):
-    w = Wnorm(2*np.pi*freqs[0],2*np.pi*freqs[1], btype)
+# def Emin(approx, freqs, btype, A, N):
+#     w = Wnorm(2*np.pi*freqs[0],2*np.pi*freqs[1], btype)
 
-    if approx == "butter" or approx=="ellip":
-        return np.sqrt(10 ** (A[1] / 10) - 1) / (w**N)
-    elif approx == "cheby1":
-        return np.sqrt(10 ** (A[1] / 10) - 1) / np.cosh(N*np.arcosh(w))
-    elif approx == "cheby2":
-        return 1 / (np.sqrt(10 ** (A[0] / 10) - 1))
-    
-def Emax(approx, A):
-    if approx=="butter" or approx=="cheby1" or approx=="ellip":
-        return np.sqrt(10 ** (A[0] / 10) - 1)
-    elif approx=="cheby2":
-        return 1 / (np.sqrt(10 ** (A[1] / 10) - 1))
+#     if approx == "butter" or approx=="ellip":
+#         return np.sqrt(10 ** (A[1] / 10) - 1) / (w**N)
+#     elif approx == "cheby1":
+#         return np.sqrt(10 ** (A[1] / 10) - 1) / np.cosh(N*np.arcosh(w))
+#     elif approx == "cheby2":
+#         return 1 / (np.sqrt(10 ** (A[0] / 10) - 1))
+
+
+# def Emax(approx, A):
+#     if approx=="butter" or approx=="cheby1" or approx=="ellip":
+#         return np.sqrt(10 ** (A[0] / 10) - 1)
+#     elif approx=="cheby2":
+#         return 1 / (np.sqrt(10 ** (A[1] / 10) - 1))
 
 def gradNorm(approx, freqs, A, btype, wc, qmax, N, desnorm):
-    # wx = 2*np.pi*freqs[0]*(freqs[1]/freqs[0])**desnorm                 # Calculamos la frecuencia deseada
-    # Ax = A[0]+(A[1]-A[0])*desnorm         # Calculamos al atenuación en la frecuencia deseada  
-    # print('wx: ', wx, 'Ax: ', Ax)
+    w = calcW(w=2*np.pi*np.array(freqs), filter_type=btype)
     
     if approx == "butter":
-        wc_min = 2* np.pi * freqs[0] * (10**(A[0]/10) -  1)**(-1/(2*N))
-        wc_max = 2* np.pi * freqs[1] * (10**(A[1]/10) -  1)**(-1/(2*N))
+        wc_min = w[0] * (10**(A[0]/10) -  1)**(-1/(2*N))
+        wc_max = w[1] * (10**(A[1]/10) -  1)**(-1/(2*N))
         wc_ = wc_min + desnorm* (wc_max-wc_min)
 
-    elif approx == "cheby1":
-        # fc min lo da chebyord
-        wp = complex(2*np.pi*freqs[0], 0)
-        wa = complex(2*np.pi*freqs[1], 0)
+    elif approx == "cheby1" or approx == "ellip":
 
-        TnP= np.cos(N*np.arccos(wp/wc))
-        TnA= np.cos(N*np.arccos(wa))  # chebyt_eval(wa)
+        if approx == "cheby1": 
+            a, b = ss.cheby1(N, A[0], Wn=1, analog = True, output='ba')
+        if approx == "ellip": 
+            a, b = ss.ellip(N, A[0], A[1], Wn=1, analog = True, output='ba')
 
-        print ("TnP: ", TnP)
-        print ("TnA: ", TnA)
+        H_norm = ss.TransferFunction(a, b)
+        wa=2*np.pi*freqs[1]
+        w_values, mag_values, _ = ss.bode(H_norm, w=np.linspace(1, max(wa, 1/wa), num=100000))
+        wx = [ w for w, mag in zip(w_values, mag_values) if mag <= (-A[1])]      # wa/wc
 
-        TnP = np.real(TnP)
-        TnA = np.real(TnA)
+        print('wx: ', wx[0])
 
-        #Emin = np.sqrt((10**(A[0]/10)-1)/TnP)
-        Emax = np.sqrt((10**(A[1]/10)-1)/TnA)
-        den=np.polyadd(np.poly1d(1),Emax**2*np.array(sp.chebyt(N)))
-        #E = Emin + desnorm * (Emax-Emin)
-        H=ss.TransferFunction(1,den)
-        mag,_=ss.bode(1,den)
-        
+        wc_a = w[1] / wx[0]
+        wc_ = wc + (wc_a - wc) * desnorm
 
     else:
-        wx = 2*np.pi*freqs[0]*(freqs[1]/freqs[0])**desnorm                 # Calculamos la frecuencia deseada
-        Ax = A[0]+(A[1]-A[0])*desnorm         # Calculamos al atenuación en la frecuencia deseada  
-        print('wx: ', wx, 'Ax: ', Ax)
-        wc_ = wx / ((10**(Ax/10)-1)**(1/(2*N)))
-        
+        wc_ = wc
 
 
+    if (btype == 'highpass'):
+        wc_ = 1/wc_
 
-    # elif approx == "cheby1":
-    #     wc_min = 
-    #     wc_mac = 
-
-
-    # wc_ = wx / ((10**(Ax/10)-1)**(1/(2*N)))
-    
-    # Emin_ = Emin(approx, freqs, btype, A, N)
-    # if qmax != 0:
-    #     Emin_ = max(1/(2*qmax), Emin_)
-    # E = Emax(approx, A)*(1 - desnorm)-Emin_
-
-    # print (freqs, E, N)
-
-    # wc_=2*np.pi*freqs[0] / (E ** (1/N)) # Wc*
-    # print("Em=", Emin_, "\t EM=", Emax(approx, A), "\t E=", E) 
-    # print("WC*=", wc_)
     return wc_ 
+
+def Qchecker(p, qmax):
+    q_arr=[]; q_sys=0
+
+    for pole in p:
+        q = abs(abs(pole) / (2 * pole.real))
+        q_arr.append(q)
+        q_sys = np.max(q_arr)
+
+    if q_sys >= qmax:
+        print("!Q EXCEDIDO! Qsistema = ", qsys, "> Qmax")
+    else:
+        print("Q EN RANGO: Qsistema = ", qsys, "< Qmax") 

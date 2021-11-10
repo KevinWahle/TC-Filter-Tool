@@ -10,6 +10,8 @@ def drawTemplate(ax, filter, index=0, alpha=0.5):
     # print("Drawing filter: " + ftype)
     # print("Color: " + color)
 
+    filter.A = np.array(filter.A) - filter.gain
+
     boxes = []
 
     if ftype == 'lowpass':

@@ -218,21 +218,79 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
     # Pestaña de etapas
 
     def onStageFilterChanged(self, index):
+
+        self.Polos_B.clear()
+        self.Ceros_B.clear()
         
         if (len(self.filter)):
 
             filter = self.filter[index]
 
-            self.Polos_B.clear()
-            self.Ceros_B.clear()
+            self.stageZeros = []      # [ z1, z2, z3]
+            self.stagePoles = []
 
-            self.stageZeros = filter.z
-            self.stagePoles = filter.p
+            filterz = np.copy(filter.z)  # Para no modificar el original
+            filterp = np.copy(filter.p)
 
-            self.Polos_B.addItems([self.displayPZ(p) for p in filter.p if p.imag >= 0])     # Muestro polos y ceros, una sola vez si es conjugado
-            self.Ceros_B.addItems([self.displayPZ(z) for z in filter.z if z.imag >= 0])
+            while len(filterz):
+                z = filterz[0]
+                if z.imag == 0:
+                    self.stageZeros.append(filterz[0])
+                    filterz = np.delete(filterz, 0)
+                else:
+                    for i in range(1,len(filterz)):
+                        if z.imag == -filterz[i].imag and z.real == filterz[i].real:
+                            self.stageZeros.append(np.array([z, filterz[i]]))
+                            filterz= np.delete(filterz, [0, i])
+
+                            break
+
+            while len(filterp):
+                p = filterp[0]
+                if p.imag == 0:
+                    self.stagePoles.append(filterp[0])
+                    filterp = np.delete(filterp, 0)
+
+                else:
+                    for i in range(1,len(filterp)):
+                        if p.imag == -filterp[i].imag and p.real == filterp[i].real:
+                            self.stagePoles.append(np.array([p, filterp[i]]))
+                            filterp= np.delete(filterp, [0, i])
+                            break
+            
+            print(self.stageZeros)
+            print(self.stagePoles)
+
+            # while len(filter.p):
+            #     p = filter.p[0]
+            #     if p.imag == 0:
+            #         self.stagePoles.append(filter.p[0])
+            #         filter.p.pop(0)
+            #     else:
+            #         indexes = np.where(filter.p == p or filter.p == np.conjugate(p))
+            #         print (indexes)
+            #         self.stagePoles.append( filter.p[indexes] )
+            #         filter.p.pop(filter.p.real == p.real and abs(filter.p.imag) == abs(p.imag))
+
+
+
+            # for i in range(len(filter.z)):
+            #     if filter.z[i].imag != 0:
+            #         for j in range(i+1,len(filter.z))
+            #             if filter.z[j].imag == -filter.z[i].imag and filter.z[j].real == filter.z[i].real:
+                             
+            #         self.stageZeros.append([filter.z[i] ])
+
+
+            self.Polos_B.addItems([self.displayPZ(p) for p in self.stagePoles ])     # Muestro polos y ceros, una sola vez si es conjugado
+            self.Ceros_B.addItems([self.displayPZ(z) for z in self.stageZeros])
 
     def displayPZ(self, complex) -> str:
+
+
+        complex = complex if not isinstance(complex, np.ndarray) else complex[0]
+
+        # print(complex)
 
         real = complex.real
         imag = complex.imag

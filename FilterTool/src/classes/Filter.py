@@ -22,24 +22,26 @@ class Filter:
         self.k = 0
         self.stage=[]
 
-        # self.CalcFilt()
-
         ord = None
         wn = None
 
         if (self.approx == 'butter'):
-            ord, _ = ss.buttord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
-                
-            wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
+            ord, wn = ss.buttord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
+            if self.filter_type == 'lowpass' or self.filter_type == 'highpass':
+                wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
 
             if ord in range(self.N[0], self.N[1]):
-                self.z, self.p, self.k = ss.butter(ord, wn, btype=self.filter_type, analog=True, output='zpk')
+                    self.z, self.p, self.k = ss.butter(ord, wn, btype=self.filter_type, analog=True, output='zpk')
             else:
                 pass 
 
         elif (self.approx == 'cheby1'):
             ord, wn = ss.cheb1ord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
-            wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
+            print(ord, wn)
+            if self.filter_type == "lowpass":
+                wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
+
+            # n  = min(max(N[0], ord),N[1])
 
             if ord in range(self.N[0], self.N[1]):
                 self.z, self.p, self.k = ss.cheby1(ord, self.A[0], wn, btype=self.filter_type, analog=True, output='zpk')
@@ -48,7 +50,6 @@ class Filter:
 
         elif (self.approx == 'cheby2'):
             ord, wn = ss.cheb2ord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
-            wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
 
             if ord in range(self.N[0], self.N[1]):
                 self.z, self.p, self.k = ss.cheby2(ord, self.A[1], wn, btype=self.filter_type, analog=True, output='zpk')
@@ -57,7 +58,8 @@ class Filter:
 
         elif (self.approx == 'ellip'):
             ord, wn = ss.ellipord(2*np.pi*self.freqs[0], 2*np.pi*self.freqs[1], self.A[0], self.A[1], analog=True)
-            wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
+            if self.filter_type == "lowpass":
+                wn = aux.gradNorm(self.approx, freqs, self.A, self.filter_type, wn, self.qmax, ord, self.desnorm)
 
             if ord in range(self.N[0], self.N[1]):
                 self.z, self.p, self.k = ss.ellip(ord, self.A[0], self.A[1], wn, btype=self.filter_type, analog=True, output='zpk')
@@ -78,9 +80,9 @@ class Filter:
         
         print("n: ",ord, "'wn: ", wn)
         print("zpk: ", self.z, self.p, self.k)
-        print("H = ", zpk2tf(self.z, self.p, self.k))
-        # print(ss.sos2tf(self.sos))
-        # print(self.sos)
+        # print("H = ", zpk2tf(self.z, self.p, self.k))
+
+        Qchecker(p=self.p, q=self.qmax)
 
     def getTF(self):
         try:
