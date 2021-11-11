@@ -73,8 +73,8 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
     a=[1]; b= np.polyadd(np.poly1d([1]), (epsilon**2)*LegenPol2(n))
     z,p,k=ss.tf2zpk(a,b)
     p=p[p.real<=0]  # Elimina polos del semiplano derecho 
-    return transform(z,p,k, wx, w, filter_type), ord 
-
+    z,p,k = transform(z,p,k, wx, w, filter_type) 
+    return z, p, k, ord
 
 #TODO: gauss Módulo
 #def gauss_(w, aten, desnorm, filter_type, N=[0,15]):
@@ -98,30 +98,25 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
     # else:
     #     return 0
 
-def gauss_(wrg, retGroup, tol=0.1, N=[0,15]):
-    tau= retGroup*1e-6
-    num=den=[]
-    nOK = 0
-    # for n in range(max(N[0],1), N[1]+1):
-    for n in range(max(N[0],1), 10):
-        nOK = n
-        num=[1]; den= np.polyadd(np.poly1d([1]), gaussPol(n))
-        print(den)
-        w,h = ss.freqs(num, den, worN=np.linspace(wrg*0.99, wrg*1.01, num=3))
-        retGroup_ = -np.diff(np.unwrap(np.angle(h)))/np.diff(w) # Calculo del retardo de grupo en wrg
-        if retGroup_[1]>= tau*(1-tol):
-            break
+# def gauss_(wrg, retGroup, tol=0.1, N=[0,15]):
+#     tau= retGroup*1e-6
+#     num=den=[]
+#     nOK = 0
+#     # for n in range(max(N[0],1), N[1]+1):
+#     for n in range(max(N[0],1), 10):
+#         nOK = n
+#         num=[1]; den= np.polyadd(np.poly1d([1]), gaussPol(n))
+#         print(den)
+#         w,h = ss.freqs(num, den, worN=np.linspace(wrg*0.99, wrg*1.01, num=3))
+#         retGroup_ = -np.diff(np.unwrap(np.angle(h)))/np.diff(w) # Calculo del retardo de grupo en wrg
+#         if retGroup_[1]>= tau*(1-tol):
+#             break
 
-    z,p,k = ss.tf2zpk(num,den)
-    p=p[p.real<=0]  # Elimina polos del semiplano derecho
-    return z, p, k, nOK
+#     z,p,k = ss.tf2zpk(num,den)
+#     p=p[p.real<=0]  # Elimina polos del semiplano derecho
+#     return z, p, k, nOK
 
-def gaussPol(n):    
-    # Genera un arreglo con los coeficientes del Pol de Gauss.
-    pol=np.zeros(n*2+1)
-    for i in range(1,n+1):
-        pol[int(i*2)]= 1/mt.factorial(i)
-    return pol[::-1]
+
 
 def transform(z, p, k, wx, w,filter_type):
     if filter_type == 'lowpass':
@@ -208,33 +203,72 @@ def LegenPol2(n):
 
         return np.polysub(np.polyval(poly, x2), np.polyval(poly, x1))
 
-# def Wnorm(wa,wp,tipo):
-#     print("TIPO:", tipo)
-#     if tipo == 'lowpass':
-#         return wa/wp
-#     elif tipo == 'highpass':
-#         return wp/wa
-#     elif tipo == 'bandpass':
-#         return(wa[1]-wa[0])/(wp[1]-wp[0])
-#     elif tipo == "bandstop":
-#         return (wp[1]-wp[0])/(wa[1]-wa[0])
+def gaussord(wo,retGroup,tol,N):
+    woN = wo * retGroup * 1e-6
+    
+    ord=0
+    for ord in range(N[0],N[1]+1):
+        num,den = gauss_(ord,woN, output="ba")
+        w, h = ss.freqs(num, den, worN=np.logspace(np.log10(woN)-1, np.log10(woN)+1, num=int(1e3)))
+        retGroup_ = -np.diff(np.unwrap(np.angle(h))) / np.diff(w)
+        if retGroup_[Nearest(w, woN)] >= (1 - tol):
+              break
+    return ord, 1 / (retGroup * 1e-6)
 
-# def Emin(approx, freqs, btype, A, N):
-#     w = Wnorm(2*np.pi*freqs[0],2*np.pi*freqs[1], btype)
+def Nearest(w,target):
+    dists = []
+    for frec in w:
+        dists.append(abs(frec-target)) #distancias de frec a target
+    return dists.index(min(dists))     #indice del elemento mas cercano a target
 
-#     if approx == "butter" or approx=="ellip":
-#         return np.sqrt(10 ** (A[1] / 10) - 1) / (w**N)
-#     elif approx == "cheby1":
-#         return np.sqrt(10 ** (A[1] / 10) - 1) / np.cosh(N*np.arcosh(w))
-#     elif approx == "cheby2":
-#         return 1 / (np.sqrt(10 ** (A[0] / 10) - 1))
+def GaussZPK(den):  
+    # Calcula polos,ceros y ganacia del pol de Gauss.
+    k=1
+    p = []
+    for pole in 1j * den.roots:
+        if pole.real < 0:
+            new_pole = complex(pole.real if abs(pole.real) > 1e-10 else 0,
+                                pole.imag if abs(pole.imag) > 1e-10 else 0)
+            p.append(new_pole)
+            k = k * new_pole
 
 
-# def Emax(approx, A):
-#     if approx=="butter" or approx=="cheby1" or approx=="ellip":
-#         return np.sqrt(10 ** (A[0] / 10) - 1)
-#     elif approx=="cheby2":
-#         return 1 / (np.sqrt(10 ** (A[1] / 10) - 1))
+    return [], p, k
+
+def gaussPol(n):    
+    # Genera un arreglo con los coeficientes del Pol de Gauss.
+    pol=np.zeros(n*2+1)
+    for i in range(1,n+1):
+        pol[int(i*2)]= 1/mt.factorial(i)
+    return pol[::-1]
+
+def gauss_(N, Wn, btype='lowpass', output='zpk'):
+    #Wn = np.asarray(Wn) 
+    # Generamos la transferencia
+    den = np.polyadd(np.poly1d(gaussPol(N)), np.poly1d([1]))
+    z, p, k = GaussZPK(den)
+
+    #Transformamos
+    if btype == "lowpass":
+      z, p, k = ss.lp2lp_zpk(z, p, k, wo=Wn)
+
+    elif btype == "highpass":
+      z, p, k = ss.lp2lp_zpk(z, p, k, wo=Wn)  
+      
+    elif btype == "bandpass":
+      bw = Wn[1] - Wn[0]
+      wo = np.sqrt(Wn[0] * Wn[1]) 
+      z, p, k = ss.lp2bp_zpk(z, p, k, wo=wo, bw=bw)
+
+    elif btype == "bandstop":
+      bw = Wn[1] - Wn[0]
+      wo = np.sqrt(Wn[0] * Wn[1]) 
+      z, p, k = ss.lp2bs_zpk(z, p, k, wo=wo, bw=bw)
+
+    if output == 'zpk':
+        return z, p, k
+    elif output == 'ba':
+        return ss.zpk2tf(z, p, k)
 
 def gradNorm(approx, freqs, A, btype, wc, qmax, N, desnorm):
     w = calcW(w=2*np.pi*np.array(freqs), filter_type=btype)
@@ -284,4 +318,6 @@ def Qchecker(p, qmax):
             return False
         else:
             print("Q EN RANGO: Qsistema = ", q_sys, "< Qmax") 
-            return True
+    
+    else:
+        return True

@@ -67,14 +67,16 @@ class Filter:
                 self.z, self.p, self.k, ord = aux.legendre_(2*np.pi*self.freqs, aten=self.A, desnorm=self.desnorm, filter_type=self.filter_type, N=N)
 
             elif (self.approx == 'gauss'):
-                # TODO: Chequear estos valores que se le pasan a Gauss, crasheaba
-                self.z, self.p, self.k, ord = aux.gauss_(2*np.pi*self.freqs, retGroup=self.ret, tol=self.tol, N=N)
+                ord, wn = aux.gaussord(wo=2*np.pi*self.freqs,retGroup=self.ret,tol=self.tol,N=self.N)
+                self.z, self.p, self.k = aux.gauss_(N=ord, Wn=wn, btype='lowpass', output='zpk')
             else:
                 raise ValueError("Error en el ingreso de la aproximación")
             
             print("n: ",ord, "'wn: ", wn)
             print("zpk: ", self.z, self.p, self.k)
             # print("H = ", zpk2tf(self.z, self.p, self.k))
+
+        
 
             if aux.Qchecker(p=self.p, qmax=self.qmax) == False:
                 N=[0, ord- 1]
