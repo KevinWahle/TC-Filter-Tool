@@ -13,7 +13,7 @@ class Filter:
         self.A = np.array(aten)             # [Ap , Aa]
         self.freqs = np.array(freqs)        # [[fp-, fp+], [fa-, fa+] ] o [fp, fa] o wRG
         self.N = np.array(N)                # [Nmin, Nmax]
-        self.qmax = qmax                    # TODO: ¿Como hacemo?
+        self.qmax = qmax             
         self.ret = retardo                  # Se carga en us 
         self.desnorm = desnorm
         self.tol= tol       # Para group delay
@@ -72,10 +72,8 @@ class Filter:
             else:
                 raise ValueError("Error en el ingreso de la aproximación")
             
-            print("n: ",ord, "'wn: ", wn)
-            print("zpk: ", self.z, self.p, self.k)
-            # print("H = ", zpk2tf(self.z, self.p, self.k))
-
+            # print("n: ",ord, "'wn: ", wn)
+            # print("zpk: ", self.z, self.p, self.k)
         
 
             if aux.Qchecker(p=self.p, qmax=self.qmax) == False:

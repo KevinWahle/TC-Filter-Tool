@@ -74,38 +74,42 @@ def drawingFilter(filter, axes, index):    # axes = [ Aten, Fase, Retardo de Gru
 
 # Grafica arreglo de filtros en todos los ejes
 def drawingFilters(filters, ax):   # axes = [ Aten, Fase, Retardo de Grupo, Polos y ceros ]
+    
+    flag = False
     for i in range(len(filters)):
         if filters[i].visible == True:
             drawingFilter(filters[i], ax, i)
+            flag = True
         else:
             pass
 
-    ax[0].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
-    ax[0].set_ylabel(r'$Atenuación\ [dB]$', fontsize=10)
-    ax[0].set_title('Atenuación', fontsize=15)
-    ax[0].set_xscale('log')
-    ax[0].grid(which='both', zorder=0)
-    ax[0].legend()
+    if flag:
+        ax[0].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+        ax[0].set_ylabel(r'$Atenuación\ [dB]$', fontsize=10)
+        ax[0].set_title('Atenuación', fontsize=15)
+        ax[0].set_xscale('log')
+        ax[0].grid(which='both', zorder=0)
+        ax[0].legend()
 
-    ax[1].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
-    ax[1].set_ylabel(r'$Fase\ [°]$', fontsize=10)
-    ax[1].set_title('Fase', fontsize=15)
-    ax[1].legend()
-    ax[1].set_xscale('log')
-    ax[1].grid(which='both', zorder=0)
-    
-    ax[2].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
-    ax[2].set_ylabel(r'$Retardo\ [\mu s]$', fontsize=10)
-    ax[2].set_title('Retardo', fontsize=15)
-    ax[2].set_xscale('log')
-    ax[2].grid(which='both', zorder=0)
-    ax[2].legend()
-    
-    ax[3].set_xlabel(r'$\sigma$', fontsize=15)
-    ax[3].set_ylabel(r'$j \omega$', fontsize=15)
-    ax[3].set_title('Gráfico Polos y Ceros')
-    ax[3].grid(which='both', zorder=0)
-    ax[3].legend()
+        ax[1].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+        ax[1].set_ylabel(r'$Fase\ [°]$', fontsize=10)
+        ax[1].set_title('Fase', fontsize=15)
+        ax[1].legend()
+        ax[1].set_xscale('log')
+        ax[1].grid(which='both', zorder=0)
+        
+        ax[2].set_xlabel(r'$Frecuencia\ [Hz]$', fontsize=10)
+        ax[2].set_ylabel(r'$Retardo\ [\mu s]$', fontsize=10)
+        ax[2].set_title('Retardo', fontsize=15)
+        ax[2].set_xscale('log')
+        ax[2].grid(which='both', zorder=0)
+        ax[2].legend()
+        
+        ax[3].set_xlabel(r'$\sigma$', fontsize=15)
+        ax[3].set_ylabel(r'$j \omega$', fontsize=15)
+        ax[3].set_title('Gráfico Polos y Ceros')
+        ax[3].grid(which='both', zorder=0)
+        ax[3].legend()
 
 def drawPZ(filter, ax):
     H = filter.getTF(); zeros, poles = H.zeros, H.poles

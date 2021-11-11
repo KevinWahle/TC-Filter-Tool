@@ -34,9 +34,9 @@ def calcW(w,filter_type):
 def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
     w = calcW(w=w, filter_type=filter_type)
 
-    print("Entro a Legendre.")
-    print("w= ", w)
-    print("aten= ", aten)
+    # print("Entro a Legendre.")
+    # print("w= ", w)
+    # print("aten= ", aten)
 
     #wx = w[0]*(w[1]/w[0])**desnorm                 # Calculamos la frecuencia deseada
     #Ax = aten[0]+(aten[1]-aten[0])*desnorm         # Calculamos al atenuación en la frecuencia deseada
@@ -46,9 +46,9 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
 
     epsilon= np.sqrt(10**(Ax/10)-1)                # Calculamos el epsilon para la frec deseada
     
-    print("wx = ", wx)
-    print("Ax = ", Ax)
-    print("E = ", epsilon)
+    # print("wx = ", wx)
+    # print("Ax = ", Ax)
+    # print("E = ", epsilon)
 
     ord=0
     # CotaLp = (10**(aten[0]/10)-1)/(epsilon**2)
@@ -58,11 +58,11 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
         Lp= np.polyval(LegenPol2(n), (w[0]/wx))            # Pol de Legendre en wp
         La= np.polyval(LegenPol2(n), (w[1]/wx))            # Pol de Legendre en wa
         
-        print("Pruebo n=", n)
-        print("Ap= ", aten[0], "\t ALp=", -10*np.log10(1/(1+epsilon**2*Lp))) 
-        print("Aa= ", aten[1], "\t ALa=", -10*np.log10(1/(1+epsilon**2*La)))
-        print("Lp= ", Lp)
-        print("La= ", La)
+        # print("Pruebo n=", n)
+        # print("Ap= ", aten[0], "\t ALp=", -10*np.log10(1/(1+epsilon**2*Lp))) 
+        # print("Aa= ", aten[1], "\t ALa=", -10*np.log10(1/(1+epsilon**2*La)))
+        # print("Lp= ", Lp)
+        # print("La= ", La)
 
         #if Lp <= np.log10((10**(aten[0]/10)-1)/epsilon**2) and La >= np.log10((10**(aten[1]/10)-1)/epsilon**2):
         #if Lp <= CotaLp and La >= CotaLa:
@@ -98,26 +98,6 @@ def legendre_(w, aten, desnorm, filter_type, N=[0,15]):
     # else:
     #     return 0
 
-# def gauss_(wrg, retGroup, tol=0.1, N=[0,15]):
-#     tau= retGroup*1e-6
-#     num=den=[]
-#     nOK = 0
-#     # for n in range(max(N[0],1), N[1]+1):
-#     for n in range(max(N[0],1), 10):
-#         nOK = n
-#         num=[1]; den= np.polyadd(np.poly1d([1]), gaussPol(n))
-#         print(den)
-#         w,h = ss.freqs(num, den, worN=np.linspace(wrg*0.99, wrg*1.01, num=3))
-#         retGroup_ = -np.diff(np.unwrap(np.angle(h)))/np.diff(w) # Calculo del retardo de grupo en wrg
-#         if retGroup_[1]>= tau*(1-tol):
-#             break
-
-#     z,p,k = ss.tf2zpk(num,den)
-#     p=p[p.real<=0]  # Elimina polos del semiplano derecho
-#     return z, p, k, nOK
-
-
-
 def transform(z, p, k, wx, w,filter_type):
     if filter_type == 'lowpass':
         z,p,k=ss.lp2lp_zpk(z,p,k,wx)
@@ -132,17 +112,6 @@ def transform(z, p, k, wx, w,filter_type):
         BW= (w[1]-w[0])/w0 
         z,p,k=ss.lp2bs_zpk(z,p,k,w0,BW)   
     return z,p,k
-
-# Calcula el polinomio de legendre de orden n de w**2
-def LegenPol(n):
-  pol1=sp.legendre(n)
-  pol2=np.zeros(2*n+1)
-
-  for i in range(0,n+1,1):
-    pol2[i*2]=pol1[i]
-  pol2=pol2[::-1]
-
-  return pol2
 
 # Calcula el polinomio de legendre de orden n
 def LegenPol2(n):
@@ -290,14 +259,13 @@ def gradNorm(approx, freqs, A, btype, wc, qmax, N, desnorm):
         w_values, mag_values, _ = ss.bode(H_norm, w=np.linspace(1, max(wa, 1/wa), num=100000))
         wx = [ w for w, mag in zip(w_values, mag_values) if mag <= (-A[1])]      # wa/wc
 
-        print('wx: ', wx[0])
+        # print('wx: ', wx[0])
 
         wc_a = w[1] / wx[0]
         wc_ = wc + (wc_a - wc) * desnorm
 
     else:
         wc_ = wc
-
 
     if (btype == 'highpass'):
         wc_ = 1/wc_
@@ -317,7 +285,8 @@ def Qchecker(p, qmax):
             print("!Q EXCEDIDO! Qsistema = ", q_sys, "> Qmax")
             return False
         else:
-            print("Q EN RANGO: Qsistema = ", q_sys, "< Qmax") 
+            print("Q EN RANGO: Qsistema = ", q_sys, "< Qmax")
+            return True 
     
     else:
         return True

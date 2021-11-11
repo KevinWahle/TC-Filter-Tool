@@ -67,11 +67,17 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
         self.Nombre_T.setText("Filtro")
         self.Filtro_B.setCurrentIndex(0)
         self.Aproximacion_B.setCurrentIndex(0)
-        self.Ap_T.setValue(0.5)
+        self.Ap_T.setValue(2)
         self.Aa_T.setValue(20)
         self.Fp_T.setValue(500)
         self.Fa_T.setValue(2000)
         self.Fa_T.setValue(2000)
+
+        self.Fam_T.setValue(20e3)
+        self.Fpm_T.setValue(25e3)
+        self.Fpp_T.setValue(30e3)
+        self.Fap_T.setValue(50e3)
+
         self.Nmax_T.setValue(100)
 
 
@@ -102,7 +108,7 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             print("Error al cambiar de filtro: ", e)
 
     def addFilter(self):
-        # try:
+        try:
             # Guardado de valores
 
             name = self.Nombre_T.text()
@@ -164,8 +170,8 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
                                         freqs=freqs, N=n, qmax=qmax, desnorm=denorm, retardo=gd, tol=tol))
             self.updateFilterList()
             self.drawFilters()
-        # except Exception as e:
-        #     print("Error al agregar filtro: ", e)
+        except Exception as e:
+            print("Error al agregar filtro: ", e)
 
 
     def updateFilterList(self):
@@ -176,8 +182,8 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
             for f in self.filter:
                 item = QtWidgets.QListWidgetItem(f.name, self.Filter_List)
+                item.setCheckState(QtCore.Qt.Checked if f.visible else QtCore.Qt.Unchecked)
                 item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsEditable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
-                item.setCheckState(QtCore.Qt.Checked)
                 
                 self.Seleccionado_B.addItem(f.name)
         except Exception as e:
@@ -188,7 +194,7 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             if self.filter:
                 self.filter.pop(self.Filter_List.currentRow())
                 self.updateFilterList()
-                self.drawFilters()
+            self.drawFilters()
         except Exception as e:
             print("Error al eliminar filtro: ", e)
     # def editFilter(self):
@@ -207,10 +213,10 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
                 drawingFilters(filters=self.filter, ax=axes)
 
-                self.Atenuacion_Plot.draw()
-                self.Fase_Plot.draw()
-                self.Retardo_Plot.draw()
-                self.PZ_Plot.draw()
+            self.Atenuacion_Plot.draw()
+            self.Fase_Plot.draw()
+            self.Retardo_Plot.draw()
+            self.PZ_Plot.draw()
                 # self.Q_Plot.draw()
         except Exception as e:
             print("Error al dibujar filtros: ", e)
@@ -347,15 +353,15 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
             f = w0/(2*np.pi)
             
             if (imag == 0):
-                return "n = 1\tf0 = " + self.formatedNum(f)
+                return "n = 1\tf0 = " + self.formatedNum(f) + 'Hz'
             elif (real == 0):
-                return "n = 2\tf0 = " + self.formatedNum(f) + "\tQ = ∞"
+                return "n = 2\tf0 = " + self.formatedNum(f) + "Hz\tQ = ∞"
             
             # xi = -np.cos(np.angle(complex))
             # Q = 1/(2*xi)
             Q = abs(w0/(2*real))
             
-            return "n = 2\tf0 = " + self.formatedNum(f) +"\tQ = " + self.formatedNum(Q)
+            return "n = 2\tf0 = " + self.formatedNum(f) +"Hz\tQ = " + self.formatedNum(Q)
         except Exception as e:
             print("Error al obtener expresion de polos y ceros: ", e)
             return ""
@@ -400,7 +406,10 @@ class FilterToolApp(QMainWindow, FilterTool_MainWindow):
 
             latexH = tf2Tex(num, den)
             # print(latexH)
-            tfPlot = TeXLabel(text=latexH)
+
+            text = latexH + '\n$' + self.displayPZ(H.poles).replace('\t', '\quad').replace('f0', 'f_0') + '$'
+
+            tfPlot = TeXLabel(text=text)
             self.verticalLayout_20.addWidget(tfPlot)    # Agrega el widget al scroll
 
             name = "Etapa " + str(len(self.stages))     # Etapa i
